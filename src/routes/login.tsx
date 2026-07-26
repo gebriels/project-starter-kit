@@ -2,6 +2,7 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail, Pill, ShieldCheck } from "lucide-react";
 import { supabase } from "@/db/supabase";
+import { resolvePostLoginTarget } from "@/db/session";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -29,14 +30,37 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
+      setLoading(false);
       setError(error.message);
       return;
     }
-    router.navigate({ to: "/" });
+
+    // Role- and tenant-aware redirect: platform admins / owners go to tenant
+    // setup, associated staff go straight to their pharmacy workspace.
+    const userId = data.user?.id;
+    let target: Awaited<ReturnType<typeof resolvePostLoginTarget>> | null = null;
+    try {
+      target = userId ? await resolvePostLoginTarget(userId) : null;
+    } catch {
+      target = null;
+    }
+    setLoading(false);
+
+    if (!target || target.kind === "error") {
+      await supabase.auth.signOut();
+      setError(
+        target?.kind === "error"
+          ? target.message
+          : "We couldn't verify your access right now. Please try again.",
+      );
+      return;
+    }
+
+    router.navigate({ to: target.to });
   }
+
 
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
