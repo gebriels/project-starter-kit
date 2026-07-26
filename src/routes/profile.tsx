@@ -12,6 +12,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { RequireRole } from "@/components/require-role";
 import { AppShell } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +47,14 @@ const seedStaff: Staff[] = [
 ];
 
 function ProfilePage() {
+  return (
+    <RequireRole roles={["owner", "admin", "staff"]}>
+      <ProfilePageView />
+    </RequireRole>
+  );
+}
+
+function ProfilePageView() {
   const [payOpen, setPayOpen] = useState(false);
   const [expiryDays, setExpiryDays] = useState(90);
   const [stagnantDays, setStagnantDays] = useState(120);

@@ -14,10 +14,11 @@ import {
   Receipt,
 } from "lucide-react";
 import { AppShellWithSlot } from "@/components/app-shell";
-import { medications, type Medication, type Batch } from "@/lib/mock-data";
+import { RequireRole } from "@/components/require-role";
+import { useSession } from "@/hooks/use-session";
+import { useCatalog, type Medication, type Batch } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { salesRepo } from "@/db/repositories";
-import { DEMO_PHARMACY_ID } from "@/db/seed";
 
 
 export const Route = createFileRoute("/pos")({
@@ -45,31 +46,42 @@ interface CartLine {
 }
 
 function PosPage() {
+  // Every signed-in pharmacy role can sell.
+  return (
+    <RequireRole roles={["owner", "admin", "staff"]}>
+      <PosView />
+    </RequireRole>
+  );
+}
+
+function PosView() {
+  const { pharmacyId } = useSession();
+  // Catalog is sourced exclusively from local Dexie inventory — fully offline.
+  const medications = useCatalog(pharmacyId);
   const [query, setQuery] = useState("");
-  const [cart, setCart] = useState<CartLine[]>([
-    { medId: "amox-500", qty: 1, batchId: "B205" },
-    { medId: "lisi-10", qty: 2, batchId: "L441" },
-  ]);
+  const [cart, setCart] = useState<CartLine[]>([]);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return medications.slice(0, 8);
+    if (!q) return medications;
     return medications.filter(
       (m) =>
         m.name.toLowerCase().includes(q) ||
-        m.brand.toLowerCase().includes(q) ||
+        m.generic.toLowerCase().includes(q) ||
         m.ndc.includes(q),
     );
-  }, [query]);
+  }, [query, medications]);
 
   function addToCart(med: Medication) {
+    const firstBatch = med.batches.find((b) => b.quantity > 0);
+    if (!firstBatch) return;
     setCart((prev) => {
       const existing = prev.find((l) => l.medId === med.id);
       if (existing) {
         return prev.map((l) => (l.medId === med.id ? { ...l, qty: l.qty + 1 } : l));
       }
-      return [...prev, { medId: med.id, qty: 1, batchId: med.batches[0].id }];
+      return [...prev, { medId: med.id, qty: 1, batchId: firstBatch.id }];
     });
   }
 
@@ -104,10 +116,14 @@ function PosPage() {
 
   async function handleCharge() {
     if (lines.length === 0 || charging) return;
+    if (!pharmacyId) {
+      alert("No pharmacy is linked to your account.");
+      return;
+    }
     setCharging(true);
     try {
       const result = await salesRepo.checkout(
-        DEMO_PHARMACY_ID,
+        pharmacyId,
         lines.map((x) => ({
           product_id: x.med.id,
           batch_id: x.batch.id,

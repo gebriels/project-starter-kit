@@ -11,6 +11,8 @@ import {
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { SyncStatus } from "@/components/sync-status";
+import { useSession } from "@/hooks/use-session";
+import type { Role } from "@/db/session";
 
 
 type NavItem = {
@@ -18,13 +20,27 @@ type NavItem = {
   label: string;
   icon: typeof LayoutDashboard;
   match: string[];
+  /** Roles allowed to see this destination. Omitted = every role. */
+  roles?: Role[];
 };
 
 const navItems: NavItem[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, match: ["/"] },
   { to: "/pos", label: "POS", icon: ScanLine, match: ["/pos"] },
-  { to: "/inventory", label: "Inventory", icon: Package, match: ["/inventory"] },
-  { to: "/reports", label: "Reports", icon: BarChart3, match: ["/reports"] },
+  {
+    to: "/inventory",
+    label: "Inventory",
+    icon: Package,
+    match: ["/inventory"],
+    roles: ["owner"],
+  },
+  {
+    to: "/reports",
+    label: "Reports",
+    icon: BarChart3,
+    match: ["/reports"],
+    roles: ["owner", "admin"],
+  },
   { to: "/profile", label: "Profile", icon: User, match: ["/profile"] },
 ];
 
@@ -73,8 +89,20 @@ export function AppShellWithSlot({
   return <AppShellInner topBarSlot={topBarSlot} hideBell={hideBell}>{children}</AppShellInner>;
 }
 
+/** Nav filtered by the signed-in user's role. */
+function useNavItems(): NavItem[] {
+  const { role } = useSession();
+  return navItems.filter((i) => !i.roles || (!!role && i.roles.includes(role)));
+}
+
+function initialsOf(first?: string, last?: string) {
+  return `${first?.[0] ?? ""}${last?.[0] ?? ""}`.toUpperCase() || "–";
+}
+
 function DesktopSidebar() {
   const { location } = useRouterState();
+  const items = useNavItems();
+  const { profile, role } = useSession();
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[72px] flex-col border-r border-sidebar-border bg-sidebar md:flex xl:w-[260px]">
       <div className="flex items-center gap-2.5 px-4 py-6 xl:px-6">
@@ -92,7 +120,7 @@ function DesktopSidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 px-2 py-2 xl:px-3">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const active =
             item.match.includes(location.pathname) || location.pathname === item.to;
           const Icon = item.icon;
@@ -122,12 +150,14 @@ function DesktopSidebar() {
       <div className="border-t border-sidebar-border p-3 xl:px-4 xl:py-4">
         <Link to="/profile" className="flex items-center gap-3 rounded-md p-1 hover:bg-surface-low">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-secondary-soft text-secondary-soft-foreground font-semibold">
-            DS
+            {initialsOf(profile?.first_name, profile?.last_name)}
           </div>
           <div className="hidden min-w-0 flex-1 xl:block">
-            <div className="truncate text-sm font-semibold">Dawit Solomon</div>
+            <div className="truncate text-sm font-semibold">
+              {profile ? `${profile.first_name} ${profile.last_name}` : "Signed out"}
+            </div>
             <div className="font-mono-data text-[10px] uppercase tracking-wider text-subtle-foreground">
-              Owner
+              {role ?? "—"}
             </div>
           </div>
         </Link>
@@ -137,6 +167,7 @@ function DesktopSidebar() {
 }
 
 function TopBar({ slot, hideBell }: { slot?: ReactNode; hideBell?: boolean }) {
+  const { profile } = useSession();
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/90 px-4 backdrop-blur md:px-6 xl:px-8">
       <div className="flex items-center gap-2 md:hidden">
@@ -164,7 +195,7 @@ function TopBar({ slot, hideBell }: { slot?: ReactNode; hideBell?: boolean }) {
           className="grid h-9 w-9 place-items-center rounded-full bg-surface-mid text-sm font-semibold text-primary-soft-foreground hover:bg-primary-soft"
           aria-label="Profile"
         >
-          DS
+          {initialsOf(profile?.first_name, profile?.last_name)}
         </Link>
       </div>
     </header>
@@ -173,10 +204,14 @@ function TopBar({ slot, hideBell }: { slot?: ReactNode; hideBell?: boolean }) {
 
 function MobileBottomNav() {
   const { location } = useRouterState();
+  const items = useNavItems();
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface md:hidden">
-      <ul className="mx-auto grid max-w-md grid-cols-5">
-        {navItems.map((item) => {
+      <ul
+        className="mx-auto grid max-w-md"
+        style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+      >
+        {items.map((item) => {
           const active = item.match.includes(location.pathname);
           const Icon = item.icon;
           return (

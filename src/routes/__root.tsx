@@ -134,21 +134,18 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    // Boot offline-first data layer on the client only.
+    // Boot the offline-first sync engine on the client only.
     let cancelled = false;
     void (async () => {
-      const [{ seedIfEmpty }, { startSyncEngine }] = await Promise.all([
-        import("../db/seed"),
-        import("../db/sync"),
-      ]);
+      const { startSyncEngine } = await import("../db/sync");
       if (cancelled) return;
-      await seedIfEmpty();
       startSyncEngine();
     })();
     return () => {
       cancelled = true;
     };
   }, []);
+
 
   // Client-side auth guard: redirect unauthenticated users to /login
   // for any non-public route. Runs after hydration to avoid SSR flashes.
