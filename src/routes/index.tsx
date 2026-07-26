@@ -97,7 +97,7 @@ const rangeLabel: Record<Range, string> = {
 
 function DashboardPage() {
   return (
-    <RequireRole roles={{["owner", "admin", "staff"]}}>
+    <RequireRole roles={["owner", "admin", "staff"]}>
       <DashboardPageView />
     </RequireRole>
   );

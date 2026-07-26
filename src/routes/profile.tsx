@@ -48,7 +48,7 @@ const seedStaff: Staff[] = [
 
 function ProfilePage() {
   return (
-    <RequireRole roles={{["owner", "admin", "staff"]}}>
+    <RequireRole roles={["owner", "admin", "staff"]}>
       <ProfilePageView />
     </RequireRole>
   );

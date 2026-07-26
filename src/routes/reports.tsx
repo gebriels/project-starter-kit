@@ -50,7 +50,7 @@ type RangeKey = "week" | "month" | "year" | "custom";
 
 function ReportsPage() {
   return (
-    <RequireRole roles={{["owner", "admin"]}}>
+    <RequireRole roles={["owner", "admin"]}>
       <ReportsPageView />
     </RequireRole>
   );
