@@ -71,7 +71,7 @@ function RegisterPage() {
       setError(error.message);
       return;
     }
-    router.navigate({ to: "/" });
+    router.navigate({ to: "/dashboard" });
   }
 
   return (
