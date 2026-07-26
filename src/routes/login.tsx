@@ -2,6 +2,7 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail, Pill, ShieldCheck } from "lucide-react";
 import { supabase } from "@/db/supabase";
+import { resolvePostLoginTarget } from "@/db/session";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
