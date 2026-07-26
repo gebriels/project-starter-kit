@@ -25,6 +25,7 @@ import {
   Cell,
 } from "recharts";
 
+import { RequireRole } from "@/components/require-role";
 import { AppShell } from "@/components/app-shell";
 import { stockStatus, useCatalog, type Medication } from "@/lib/catalog";
 import { useSession } from "@/hooks/use-session";
@@ -48,6 +49,14 @@ type TopTab = "sales" | "inventory" | "financials";
 type RangeKey = "week" | "month" | "year" | "custom";
 
 function ReportsPage() {
+  return (
+    <RequireRole roles={{["owner", "admin"]}}>
+      <ReportsPageView />
+    </RequireRole>
+  );
+}
+
+function ReportsPageView() {
   const [tab, setTab] = useState<TopTab>("sales");
   const [range, setRange] = useState<RangeKey>("month");
 

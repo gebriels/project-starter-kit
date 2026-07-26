@@ -20,6 +20,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { RequireRole } from "@/components/require-role";
 import { AppShell } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
 
@@ -95,6 +96,14 @@ const rangeLabel: Record<Range, string> = {
 };
 
 function DashboardPage() {
+  return (
+    <RequireRole roles={{["owner", "admin", "staff"]}}>
+      <DashboardPageView />
+    </RequireRole>
+  );
+}
+
+function DashboardPageView() {
   const [range, setRange] = useState<Range>("month");
   const series = revenueByRange[range];
   const avg = Math.round(series.reduce((s, p) => s + p.value, 0) / series.length);
