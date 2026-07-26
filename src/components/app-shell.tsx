@@ -16,7 +16,7 @@ import type { Role } from "@/db/session";
 
 
 type NavItem = {
-  to: "/" | "/pos" | "/inventory" | "/reports" | "/profile";
+  to: "/dashboard" | "/pos" | "/inventory" | "/reports" | "/profile";
   label: string;
   icon: typeof LayoutDashboard;
   match: string[];
@@ -25,7 +25,7 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, match: ["/"] },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, match: ["/dashboard"] },
   { to: "/pos", label: "POS", icon: ScanLine, match: ["/pos"] },
   {
     to: "/inventory",

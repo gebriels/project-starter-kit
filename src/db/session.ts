@@ -43,3 +43,57 @@ export async function cachedPharmacyId(): Promise<string | null> {
   const m = await db.meta.get("active_pharmacy_id");
   return (m?.value as string) ?? null;
 }
+
+// ---------- Post-login routing ----------
+
+export type PostLoginTarget =
+  | { kind: "ok"; to: "/register" | "/dashboard" | "/pos"; role: string; pharmacyId: string | null }
+  | { kind: "error"; message: string };
+
+/**
+ * Decides where a user lands right after sign-in.
+ *
+ * - platform admins and pharmacy `owner`s go to the tenant registration/setup page
+ * - any other associated user goes to their pharmacy workspace (POS)
+ * - unknown users, or users with no tenant, get an explicit permission notice
+ */
+export async function resolvePostLoginTarget(userId: string): Promise<PostLoginTarget> {
+  // 1. Platform admin group takes precedence over pharmacy roles.
+  const { data: admin } = await supabase
+    .from("platform_admins")
+    .select("id, role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (admin) {
+    return { kind: "ok", to: "/register", role: "platform_admin", pharmacyId: null };
+  }
+
+  // 2. Pharmacy user record (also mirrored into Dexie for offline role checks).
+  const profile = await loadProfile(userId);
+
+  if (!profile) {
+    return {
+      kind: "error",
+      message:
+        "We couldn't find an account record for you. Ask your pharmacy owner to invite you, or contact Phamda support.",
+    };
+  }
+
+  if (profile.is_active === false) {
+    return { kind: "error", message: "This account has been deactivated. Contact your pharmacy owner." };
+  }
+
+  if (profile.role === "owner") {
+    return { kind: "ok", to: "/register", role: profile.role, pharmacyId: profile.pharmacy_id ?? null };
+  }
+
+  if (!profile.pharmacy_id) {
+    return {
+      kind: "error",
+      message: "Your account isn't linked to a pharmacy yet. Ask your owner to assign you to a branch.",
+    };
+  }
+
+  return { kind: "ok", to: "/pos", role: profile.role, pharmacyId: profile.pharmacy_id };
+}
