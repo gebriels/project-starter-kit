@@ -43,6 +43,17 @@ export const Route = createFileRoute("/inventory")({
 });
 
 function InventoryPage() {
+  // Inventory + batch management is owner-only; staff are blocked.
+  return (
+    <RequireRole roles={["owner"]}>
+      <InventoryView />
+    </RequireRole>
+  );
+}
+
+function InventoryView() {
+  const { pharmacyId } = useSession();
+  const medications = useCatalog(pharmacyId);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof categories)[number]>("All");
 
@@ -58,9 +69,10 @@ function InventoryPage() {
         m.ndc.includes(q);
       return matchesCat && matchesQ;
     });
-  }, [query, category]);
+  }, [query, category, medications]);
 
   const totalUnits = medications.reduce((s, m) => s + m.stock, 0);
+
 
   const headerAdd = (
     <Link
