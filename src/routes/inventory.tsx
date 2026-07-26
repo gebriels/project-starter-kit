@@ -10,8 +10,17 @@ import {
 } from "lucide-react";
 
 import { AppShellWithSlot } from "@/components/app-shell";
-import { categories, medications, stockStatus, type Medication } from "@/lib/mock-data";
+import { RequireRole } from "@/components/require-role";
+import { useSession } from "@/hooks/use-session";
+import {
+  categories,
+  categoryLabels,
+  stockStatus,
+  useCatalog,
+  type Medication,
+} from "@/lib/catalog";
 import { cn } from "@/lib/utils";
+
 
 
 export const Route = createFileRoute("/inventory")({
