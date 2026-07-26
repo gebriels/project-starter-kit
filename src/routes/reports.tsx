@@ -26,7 +26,8 @@ import {
 } from "recharts";
 
 import { AppShell } from "@/components/app-shell";
-import { medications, stockStatus, type Medication } from "@/lib/mock-data";
+import { stockStatus, useCatalog, type Medication } from "@/lib/catalog";
+import { useSession } from "@/hooks/use-session";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/reports")({
@@ -537,6 +538,8 @@ function RestockTable({
   order: string[];
   onToggle: (id: string) => void;
 }) {
+  const { pharmacyId } = useSession();
+  const medications = useCatalog(pharmacyId);
   const rows = useMemo(
     () =>
       medications
@@ -633,6 +636,8 @@ function daysUntil(expiryYm: string): number {
 }
 
 function ExpiryTable() {
+  const { pharmacyId } = useSession();
+  const medications = useCatalog(pharmacyId);
   type Row = { med: Medication; batchId: string; qty: number; expiry: string; days: number };
   const rows = useMemo<Row[]>(() => {
     const acc: Row[] = [];
@@ -734,6 +739,8 @@ function ExpiryTable() {
 
 /* ---- Stagnant ---- */
 function StagnantTable() {
+  const { pharmacyId } = useSession();
+  const medications = useCatalog(pharmacyId);
   // Fabricated last-sold days & unit cost per medication for demo
   const rows = useMemo(
     () =>
@@ -800,6 +807,8 @@ function StagnantTable() {
 
 /* ---- Best sellers ---- */
 function BestSellersTable() {
+  const { pharmacyId } = useSession();
+  const medications = useCatalog(pharmacyId);
   const rows = useMemo(
     () =>
       medications
