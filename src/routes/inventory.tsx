@@ -133,7 +133,8 @@ function InventoryView() {
                       : "border-border bg-surface text-muted-foreground hover:border-border-strong hover:text-foreground",
                   )}
                 >
-                  {c}
+                  {categoryLabels[c]}
+
                 </button>
               ))}
             </div>
