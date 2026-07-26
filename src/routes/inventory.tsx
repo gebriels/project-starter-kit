@@ -383,24 +383,3 @@ function MobileMedRow({ med }: { med: Medication }) {
   );
 }
 
-function PageBtn({
-  children,
-  active,
-}: {
-  children: React.ReactNode;
-  active?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        "grid h-8 min-w-8 place-items-center rounded-md px-2 font-mono-data text-xs font-semibold transition-colors",
-        active
-          ? "bg-primary text-primary-foreground"
-          : "text-muted-foreground hover:bg-surface-mid",
-      )}
-    >
-      {children}
-    </button>
-  );
-}
