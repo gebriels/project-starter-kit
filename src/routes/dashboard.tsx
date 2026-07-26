@@ -24,7 +24,7 @@ import { RequireRole } from "@/components/require-role";
 import { AppShell } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard · PharmaCore" },
