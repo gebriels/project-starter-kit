@@ -211,9 +211,8 @@ function InventoryView() {
           <div className="flex items-center justify-between border-t border-border bg-surface-low px-5 py-3 text-sm text-muted-foreground">
             <div>
               Showing <span className="font-mono-data text-foreground">1–{filtered.length}</span>{" "}
-              of <span className="font-mono-data text-foreground">1,284</span> entries
+              of <span className="font-mono-data text-foreground">{filtered.length}</span> entries
             </div>
-            <Pagination />
           </div>
         </div>
 
@@ -263,7 +262,7 @@ function FormPill({ form }: { form: string }) {
   );
 }
 
-function ReleasePill({ type }: { type: "DR" | "ER" | "ODT" | "IR" }) {
+function ReleasePill({ type }: { type: string }) {
   return (
     <span className="inline-flex h-6 items-center rounded-full border border-secondary/30 bg-secondary-soft px-2 font-mono-data text-[10px] font-bold uppercase tracking-wider text-secondary-soft-foreground">
       {type}
@@ -328,7 +327,7 @@ function KpiCard({
   );
 }
 
-function MobileMedRow({ med }: { med: (typeof medications)[number] }) {
+function MobileMedRow({ med }: { med: Medication }) {
   const status = stockStatus(med);
   return (
     <div
@@ -380,27 +379,6 @@ function MobileMedRow({ med }: { med: (typeof medications)[number] }) {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Pagination() {
-  const pages = [1, 2, 3, "…", 128];
-  return (
-    <div className="flex items-center gap-1">
-      <PageBtn>‹</PageBtn>
-      {pages.map((p, i) =>
-        p === "…" ? (
-          <span key={i} className="px-2 text-subtle-foreground">
-            …
-          </span>
-        ) : (
-          <PageBtn key={i} active={p === 1}>
-            {p}
-          </PageBtn>
-        ),
-      )}
-      <PageBtn>›</PageBtn>
     </div>
   );
 }
