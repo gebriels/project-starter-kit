@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { ArrowLeft, Plus, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Plus, Search, WifiOff } from "lucide-react";
 import { AppShellWithSlot } from "@/components/app-shell";
-import { medications } from "@/lib/mock-data";
+import { RequireRole } from "@/components/require-role";
+import { searchGlobalProducts, OfflineError } from "@/db/catalog-remote";
+import type { Product } from "@/db/dexie";
+import { useOnline } from "@/hooks/use-online";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/inventory_/add")({
@@ -20,20 +23,51 @@ export const Route = createFileRoute("/inventory_/add")({
 });
 
 function AddStockPicker() {
-  const [q, setQ] = useState("");
+  return (
+    <RequireRole roles={["owner"]}>
+      <AddStockPickerView />
+    </RequireRole>
+  );
+}
 
-  const results = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    const list = term
-      ? medications.filter(
-          (m) =>
-            m.name.toLowerCase().includes(term) ||
-            m.generic.toLowerCase().includes(term) ||
-            m.brand?.toLowerCase().includes(term),
-        )
-      : medications;
-    return list.slice(0, 12);
-  }, [q]);
+function AddStockPickerView() {
+  const online = useOnline();
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Products come from the upstream Supabase catalog only — custom items
+  // cannot be created here.
+  useEffect(() => {
+    let cancelled = false;
+    const t = setTimeout(() => {
+      setLoading(true);
+      setError(null);
+      void searchGlobalProducts(q)
+        .then((rows) => {
+          if (!cancelled) setResults(rows);
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          setResults([]);
+          setError(
+            err instanceof OfflineError
+              ? "You are offline. Connect to the internet to search the global product catalog."
+              : err instanceof Error
+                ? err.message
+                : "Search failed.",
+          );
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [q, online]);
 
   return (
     <AppShellWithSlot hideBell>
@@ -55,6 +89,16 @@ function AddStockPicker() {
           </p>
         </div>
 
+        {!online && (
+          <div className="mt-4 flex items-start gap-2 rounded-md border border-warning-soft-foreground/20 bg-warning-soft px-3 py-2.5 text-xs text-warning-soft-foreground">
+            <WifiOff className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              You are offline. Adding stock requires a connection so products can be
+              verified against the global catalog.
+            </span>
+          </div>
+        )}
+
         {/* Search */}
         <div className="mt-5 sm:mt-6">
           <div className="relative">
@@ -73,10 +117,10 @@ function AddStockPicker() {
         <section className="mt-6 rounded-lg border border-border bg-surface shadow-elev-sm">
           <header className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-5">
             <h2 className="font-mono-data text-[12px] font-bold uppercase tracking-wider text-primary">
-              {q ? "Search results" : "Recent & suggestions"}
+              {q ? "Search results" : "Global catalog"}
             </h2>
             <span className="font-mono-data text-[11px] text-subtle-foreground">
-              {results.length} {results.length === 1 ? "match" : "matches"}
+              {loading ? "Searching…" : `${results.length} ${results.length === 1 ? "match" : "matches"}`}
             </span>
           </header>
 
@@ -98,11 +142,13 @@ function AddStockPicker() {
                     <td className="px-5 py-3.5">
                       <div className="font-semibold">{m.name}</div>
                     </td>
-                    <td className="px-5 py-3.5 text-muted-foreground">{m.generic}</td>
-                    <td className="px-5 py-3.5 font-mono-data">{m.strength}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground">
+                      {m.generic_name ?? "—"}
+                    </td>
+                    <td className="px-5 py-3.5 font-mono-data">{m.strength ?? "—"}</td>
                     <td className="px-5 py-3.5">
                       <span className="inline-flex h-6 items-center rounded-full bg-surface-low px-2.5 font-mono-data text-[11px] font-semibold text-muted-foreground">
-                        {m.form}
+                        {m.dosage_form ?? "—"}
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-right">
@@ -116,7 +162,7 @@ function AddStockPicker() {
                     </td>
                   </tr>
                 ))}
-                {results.length === 0 && <EmptyRow />}
+                {results.length === 0 && !loading && <EmptyRow message={error} />}
               </tbody>
             </table>
           </div>
@@ -135,7 +181,7 @@ function AddStockPicker() {
                       {m.name} {m.strength}
                     </div>
                     <div className="truncate text-[11px] text-muted-foreground">
-                      {m.generic} · {m.form}
+                      {m.generic_name ?? "—"} · {m.dosage_form ?? "—"}
                     </div>
                   </div>
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground">
@@ -146,7 +192,7 @@ function AddStockPicker() {
             ))}
             {results.length === 0 && (
               <li className={cn("px-4 py-8 text-center text-sm text-muted-foreground")}>
-                No products match "{q}".
+                {error ?? `No products match "${q}".`}
               </li>
             )}
           </ul>
@@ -156,11 +202,11 @@ function AddStockPicker() {
   );
 }
 
-function EmptyRow() {
+function EmptyRow({ message }: { message?: string | null }) {
   return (
     <tr>
       <td colSpan={5} className="px-5 py-10 text-center text-sm text-muted-foreground">
-        No products found. Try a different search term.
+        {message ?? "No products found. Try a different search term."}
       </td>
     </tr>
   );
