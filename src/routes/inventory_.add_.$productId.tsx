@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useRouter, Navigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -10,7 +10,12 @@ import {
   Lock,
 } from "lucide-react";
 import { AppShellWithSlot } from "@/components/app-shell";
-import { medications } from "@/lib/mock-data";
+import { RequireRole } from "@/components/require-role";
+import { useSession } from "@/hooks/use-session";
+import { fetchGlobalProduct, OfflineError } from "@/db/catalog-remote";
+import { inventoryRepo } from "@/db/repositories";
+import { LOW_STOCK_LEVEL } from "@/lib/catalog";
+import type { Product } from "@/db/dexie";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/inventory_/add_/$productId")({
@@ -28,33 +33,123 @@ export const Route = createFileRoute("/inventory_/add_/$productId")({
 });
 
 function AddMedicinePage() {
+  return (
+    <RequireRole roles={["owner"]}>
+      <AddMedicineForm />
+    </RequireRole>
+  );
+}
+
+function AddMedicineForm() {
   const router = useRouter();
   const { productId } = Route.useParams();
-  const med = medications.find((m) => m.id === productId);
+  const { pharmacyId } = useSession();
 
-  if (!med) return <Navigate to="/inventory/add" />;
+  // The product MUST exist upstream in Supabase. Custom/unknown items are
+  // rejected — this validation step requires connectivity by design.
+  const [med, setMed] = useState<Product | null>(null);
+  const [validating, setValidating] = useState(true);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  const [batchNumber, setBatchNumber] = useState("B-2026-X90");
+  const [batchNumber, setBatchNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [quantity, setQuantity] = useState<number | "">("");
-  const [reorder, setReorder] = useState<number | "">(med.reorderLevel);
-
+  const [reorder, setReorder] = useState<number | "">(LOW_STOCK_LEVEL);
   const [cost, setCost] = useState<number | "">("");
-  const [price, setPrice] = useState<number | "">(med.price);
+  const [price, setPrice] = useState<number | "">("");
   const [supplier, setSupplier] = useState("");
 
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  useEffect(() => {
+    let cancelled = false;
+    setValidating(true);
+    setValidationError(null);
+    void fetchGlobalProduct(productId)
+      .then((p) => {
+        if (cancelled) return;
+        if (!p) setValidationError("This product no longer exists in the global catalog.");
+        setMed(p);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setValidationError(
+          err instanceof OfflineError
+            ? "You must be online to add stock — products are validated against the global catalog."
+            : err instanceof Error
+              ? err.message
+              : "Could not validate this product.",
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setValidating(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [productId]);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => router.navigate({ to: "/inventory" }), 800);
+    if (!med || !pharmacyId) {
+      setSaveError("Missing pharmacy or product context.");
+      return;
+    }
+    setSaveError(null);
+    try {
+      // Local-first write; the outbox syncs to Supabase now or when back online.
+      await inventoryRepo.addBatch({
+        id: crypto.randomUUID(),
+        pharmacy_id: pharmacyId,
+        product_id: med.id,
+        batch_number: batchNumber.trim(),
+        supplier_name: supplier.trim() || null,
+        expiry_date: expiry,
+        quantity: Number(quantity) || 0,
+        purchase_cost: Number(cost) || 0,
+        selling_price: Number(price) || 0,
+        created_at: new Date().toISOString(),
+      });
+      setSaved(true);
+      setTimeout(() => router.navigate({ to: "/inventory" }), 700);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Could not save this batch.");
+    }
+  }
+
+  if (validating) {
+    return (
+      <AppShellWithSlot hideBell>
+        <div className="grid min-h-[50vh] place-items-center px-4 text-sm text-muted-foreground">
+          Validating product against the global catalog…
+        </div>
+      </AppShellWithSlot>
+    );
+  }
+
+  if (!med) {
+    return (
+      <AppShellWithSlot hideBell>
+        <div className="mx-auto grid min-h-[50vh] max-w-md place-items-center px-4 text-center">
+          <div>
+            <p className="text-sm text-danger">{validationError}</p>
+            <Link
+              to="/inventory/add"
+              className="mt-4 inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground"
+            >
+              Back to product picker
+            </Link>
+          </div>
+        </div>
+      </AppShellWithSlot>
+    );
   }
 
   return (
     <AppShellWithSlot hideBell>
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(e) => void handleSubmit(e)}
         className="mx-auto w-full max-w-[1100px] px-4 py-5 pb-32 sm:px-6 lg:px-8 lg:py-8 lg:pb-8"
       >
         <Link
@@ -76,7 +171,7 @@ function AddMedicinePage() {
           </div>
           <span className="inline-flex h-8 w-fit items-center gap-1.5 rounded-full bg-success-soft px-3 font-mono-data text-[11px] font-bold uppercase tracking-wider text-success-soft-foreground">
             <CheckCircle2 className="h-3.5 w-3.5" />
-            Draft saved
+            Catalog verified
           </span>
         </div>
 
@@ -95,11 +190,11 @@ function AddMedicinePage() {
             </div>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2">
               <ReadOnly label="Medicine name" value={med.name} />
-              <ReadOnly label="Generic name" value={med.generic} />
-              <ReadOnly label="Dosage form" value={med.form} />
-              <ReadOnly label="Strength" value={med.strength} />
-              <ReadOnly label="Release type" value={med.releaseType} />
-              <ReadOnly label="Pack size" value={`×${med.packSize}`} />
+              <ReadOnly label="Generic name" value={med.generic_name ?? "—"} />
+              <ReadOnly label="Dosage form" value={med.dosage_form ?? "—"} />
+              <ReadOnly label="Strength" value={med.strength ?? "—"} />
+              <ReadOnly label="Release type" value={med.release_type ?? "IR"} />
+              <ReadOnly label="Unit of measure" value={med.UOM} />
             </dl>
           </SectionCard>
 
@@ -177,6 +272,12 @@ function AddMedicinePage() {
             </div>
           </SectionCard>
         </div>
+
+        {saveError && (
+          <p className="mt-4 rounded-md border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">
+            {saveError}
+          </p>
+        )}
 
         {/* Sticky footer actions */}
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:px-6 lg:relative lg:mt-6 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
