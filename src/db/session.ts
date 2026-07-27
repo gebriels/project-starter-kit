@@ -9,7 +9,7 @@
 import { db, isBrowser, type UserRow } from "./dexie";
 import { supabase } from "./supabase";
 
-export type Role = "owner" | "admin" | "staff";
+export type Role = "owner" | "pharmacist" | "cashier";
 
 /** Roles allowed to manage inventory / add batches. */
 export const INVENTORY_ROLES: Role[] = ["owner"];
@@ -53,7 +53,8 @@ export type PostLoginTarget =
 /**
  * Decides where a user lands right after sign-in.
  *
- * - platform admins and pharmacy `owner`s go to the tenant registration/setup page
+ * - platform admins go to the tenant registration/setup page
+ * - pharmacy `owner`s goes to his pharmacy with full acces
  * - any other associated user goes to their pharmacy workspace (POS)
  * - unknown users, or users with no tenant, get an explicit permission notice
  */
@@ -66,7 +67,7 @@ export async function resolvePostLoginTarget(userId: string): Promise<PostLoginT
     .maybeSingle();
 
   if (admin) {
-    return { kind: "ok", to: "/register", role: "platform_admin", pharmacyId: null };
+    return { kind: "ok", to: "/register", role: "platform_owner", pharmacyId: null };
   }
 
   // 2. Pharmacy user record (also mirrored into Dexie for offline role checks).
@@ -85,7 +86,7 @@ export async function resolvePostLoginTarget(userId: string): Promise<PostLoginT
   }
 
   if (profile.role === "owner") {
-    return { kind: "ok", to: "/register", role: profile.role, pharmacyId: profile.pharmacy_id ?? null };
+    return { kind: "ok", to: "/dashboard", role: profile.role, pharmacyId: profile.pharmacy_id ?? null };
   }
 
   if (!profile.pharmacy_id) {

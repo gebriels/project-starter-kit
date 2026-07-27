@@ -101,7 +101,7 @@ CREATE TABLE users (
   last_name TEXT NOT NULL,
   phone_number TEXT NOT NULL,
   email TEXT UNIQUE,
-  role TEXT DEFAULT 'staff' CHECK (role IN ('admin', 'staff', 'owner')),
+  role TEXT DEFAULT 'staff' CHECK (role IN ('owner', 'pharmacist', 'cashier')),
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
@@ -127,7 +127,7 @@ CREATE TABLE platform_admins (
     last_name TEXT NOT NULL,
     phone_number TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    role TEXT DEFAULT 'owner' CHECK (role IN ('owner', 'support_admin', 'finance_admin')),
+    role TEXT DEFAULT 'platform_owner' CHECK (role IN ('platform_owner', 'support_admin', 'finance_admin')),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );

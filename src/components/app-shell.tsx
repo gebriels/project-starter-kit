@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
     label: "Reports",
     icon: BarChart3,
     match: ["/reports"],
-    roles: ["owner", "admin"],
+    roles: ["owner", "pharmacist"],
   },
   { to: "/profile", label: "Profile", icon: User, match: ["/profile"] },
 ];
