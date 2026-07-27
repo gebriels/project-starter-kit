@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -16,6 +17,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PosRouteImport } from './routes/pos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventoryRouteImport } from './routes/inventory'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -23,6 +25,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as InventoryAddRouteImport } from './routes/inventory_.add'
 import { Route as InventoryAddProductIdRouteImport } from './routes/inventory_.add_.$productId'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -56,6 +63,11 @@ const LoginRoute = LoginRouteImport.update({
 const InventoryRoute = InventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -94,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/inventory': typeof InventoryRoute
   '/login': typeof LoginRoute
   '/pos': typeof PosRoute
@@ -101,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/inventory/add': typeof InventoryAddRoute
   '/inventory/add/$productId': typeof InventoryAddProductIdRoute
 }
@@ -109,6 +123,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/inventory': typeof InventoryRoute
   '/login': typeof LoginRoute
   '/pos': typeof PosRoute
@@ -116,6 +131,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/inventory/add': typeof InventoryAddRoute
   '/inventory/add/$productId': typeof InventoryAddProductIdRoute
 }
@@ -125,6 +141,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/inventory': typeof InventoryRoute
   '/login': typeof LoginRoute
   '/pos': typeof PosRoute
@@ -132,6 +149,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/inventory_/add': typeof InventoryAddRoute
   '/inventory_/add_/$productId': typeof InventoryAddProductIdRoute
 }
@@ -142,6 +160,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/forgot-password'
     | '/inventory'
     | '/login'
     | '/pos'
@@ -149,6 +168,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/reports'
+    | '/reset-password'
     | '/inventory/add'
     | '/inventory/add/$productId'
   fileRoutesByTo: FileRoutesByTo
@@ -157,6 +177,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/forgot-password'
     | '/inventory'
     | '/login'
     | '/pos'
@@ -164,6 +185,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/reports'
+    | '/reset-password'
     | '/inventory/add'
     | '/inventory/add/$productId'
   id:
@@ -172,6 +194,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/features'
+    | '/forgot-password'
     | '/inventory'
     | '/login'
     | '/pos'
@@ -179,6 +202,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/register'
     | '/reports'
+    | '/reset-password'
     | '/inventory_/add'
     | '/inventory_/add_/$productId'
   fileRoutesById: FileRoutesById
@@ -188,6 +212,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   InventoryRoute: typeof InventoryRoute
   LoginRoute: typeof LoginRoute
   PosRoute: typeof PosRoute
@@ -195,12 +220,20 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   ReportsRoute: typeof ReportsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   InventoryAddRoute: typeof InventoryAddRoute
   InventoryAddProductIdRoute: typeof InventoryAddProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reports': {
       id: '/reports'
       path: '/reports'
@@ -248,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/inventory'
       fullPath: '/inventory'
       preLoaderRoute: typeof InventoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -300,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   InventoryRoute: InventoryRoute,
   LoginRoute: LoginRoute,
   PosRoute: PosRoute,
@@ -307,19 +348,10 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   ReportsRoute: ReportsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   InventoryAddRoute: InventoryAddRoute,
   InventoryAddProductIdRoute: InventoryAddProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

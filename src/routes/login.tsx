@@ -136,10 +136,11 @@ function LoginPage() {
             <label className="block">
               <span className="mb-1.5 flex items-center justify-between text-xs font-medium text-muted-foreground">
                 Password
-                <a className="text-primary hover:underline" href="#">
-                  Forgot?
-                </a>
+                <Link to="/forgot-password" className="text-primary hover:underline">
+                  Forgot Password?
+                </Link>
               </span>
+
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle-foreground" />
                 <input
@@ -177,10 +178,11 @@ function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             New to Phamda?{" "}
-            <Link to="/register" className="font-semibold text-primary hover:underline">
-              Register your pharmacy
+            <Link to="/contact" className="font-semibold text-primary hover:underline">
+              Talk to our team
             </Link>
           </p>
+
         </div>
       </section>
     </div>

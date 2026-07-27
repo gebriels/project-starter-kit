@@ -13,7 +13,16 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "../db/supabase";
 
-const PUBLIC_ROUTES = new Set(["/", "/features", "/pricing", "/contact", "/login"]);
+const PUBLIC_ROUTES = new Set([
+  "/",
+  "/features",
+  "/pricing",
+  "/contact",
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+]);
+
 
 function NotFoundComponent() {
   return (
