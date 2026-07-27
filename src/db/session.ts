@@ -60,18 +60,33 @@ export type PostLoginTarget =
  */
 export async function resolvePostLoginTarget(userId: string): Promise<PostLoginTarget> {
   // 1. Platform admin group takes precedence over pharmacy roles.
-  const { data: admin } = await supabase
+  const { data: admin, error: adminError } = await supabase
     .from("platform_admins")
-    .select("id, role")
+    .select("id, role, is_active")
     .eq("id", userId)
     .maybeSingle();
 
   if (admin) {
-    return { kind: "ok", to: "/register", role: "platform_owner", pharmacyId: null };
+    if (admin.is_active === false) {
+      return { kind: "error", message: "This platform account has been deactivated." };
+    }
+    if (admin.role === "platform_owner") {
+      return { kind: "ok", to: "/register", role: "platform_owner", pharmacyId: null };
+    }
+    return { kind: "ok", to: "/dashboard", role: admin.role, pharmacyId: null };
+  }
+
+  if (adminError) {
+    return {
+      kind: "error",
+      message:
+        "We couldn't verify your platform access (database permissions). Please contact Phamda support.",
+    };
   }
 
   // 2. Pharmacy user record (also mirrored into Dexie for offline role checks).
   const profile = await loadProfile(userId);
+
 
   if (!profile) {
     return {
