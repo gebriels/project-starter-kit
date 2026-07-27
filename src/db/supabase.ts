@@ -8,3 +8,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+/**
+ * Isolated client used to create *other people's* accounts (e.g. a platform
+ * owner provisioning a pharmacy owner) without replacing the current session.
+ */
+export const supabaseSignup = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+    storageKey: "phamda.provisioning",
+  },
+});
+
