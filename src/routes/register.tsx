@@ -40,10 +40,10 @@ function RegisterRoute() {
 
 
 function RegisterPage() {
-  const router = useRouter();
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState({
     pharmacyName: "",
     country: "Ethiopia",
@@ -59,31 +59,90 @@ function RegisterPage() {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
+  function reset() {
+    setForm({
+      pharmacyName: "",
+      country: "Ethiopia",
+      city: "",
+      location: "",
+      ownerName: "",
+      phone: "",
+      email: "",
+      password: "",
+    });
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const { error } = await supabase.auth.signUp({
-      email: form.email,
+    setSuccess(null);
+
+    const [firstName, ...rest] = form.ownerName.trim().split(/\s+/);
+    const lastName = rest.join(" ") || firstName;
+
+    // 1. Create the owner's auth account on an isolated client so the platform
+    //    owner's own session is never replaced.
+    const { data: signUpData, error: signUpError } = await supabaseSignup.auth.signUp({
+      email: form.email.trim(),
       password: form.password,
       options: {
-        emailRedirectTo: window.location.origin,
-        data: {
-          pharmacy_name: form.pharmacyName,
-          country: form.country,
-          city: form.city,
-          owner_name: form.ownerName,
-          phone: form.phone,
-        },
+        emailRedirectTo: `${window.location.origin}/login`,
+        data: { full_name: form.ownerName, phone: form.phone, pharmacy_name: form.pharmacyName },
       },
     });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
+
+    const newUserId = signUpData?.user?.id;
+    if (signUpError || !newUserId) {
+      setLoading(false);
+      setError(signUpError?.message ?? "Could not create the owner account.");
       return;
     }
-    router.navigate({ to: "/dashboard" });
+
+    // 2. Create the pharmacy tenant (platform owner is authenticated here).
+    const { data: pharmacy, error: pharmacyError } = await supabase
+      .from("pharmacies")
+      .insert({
+        name: form.pharmacyName.trim(),
+        country: form.country.trim(),
+        city: form.city.trim(),
+      })
+      .select("id")
+      .single();
+
+    if (pharmacyError || !pharmacy) {
+      setLoading(false);
+      setError(pharmacyError?.message ?? "Could not create the pharmacy record.");
+      return;
+    }
+
+    // 3. Link the new auth user as the pharmacy `owner`.
+    const { error: userError } = await supabase.from("users").insert({
+      id: newUserId,
+      pharmacy_id: pharmacy.id,
+      first_name: firstName,
+      last_name: lastName,
+      phone_number: form.phone.trim(),
+      email: form.email.trim(),
+      role: "owner",
+      is_active: true,
+    });
+
+    setLoading(false);
+
+    if (userError) {
+      setError(
+        `Pharmacy created, but linking the owner failed: ${userError.message}. Re-run the owner assignment.`,
+      );
+      return;
+    }
+
+    setSuccess(
+      `${form.pharmacyName} is registered. ${form.ownerName} can now sign in at /login with ${form.email}.`,
+    );
+    reset();
   }
+
 
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
