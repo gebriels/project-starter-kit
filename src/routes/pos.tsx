@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import {
   Search,
   ScanLine,
@@ -11,14 +12,19 @@ import {
   Check,
   ChevronDown,
   CreditCard,
+  Landmark,
   Receipt,
 } from "lucide-react";
 import { AppShellWithSlot } from "@/components/app-shell";
 import { RequireRole } from "@/components/require-role";
 import { useSession } from "@/hooks/use-session";
+import { useOnline } from "@/hooks/use-online";
 import { useCatalog, type Medication, type Batch } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { salesRepo } from "@/db/repositories";
+import { paymentAccountsRepo } from "@/db/pharmacy-config";
+
+
 
 
 export const Route = createFileRoute("/pos")({
