@@ -62,7 +62,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               Sign in
             </Link>
             <Link
-              to="/register"
+              to="/contact"
               className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover"
             >
               Start free trial
@@ -107,7 +107,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
                 Sign in
               </Link>
               <Link
-                to="/register"
+                to="/contact"
                 onClick={() => setOpen(false)}
                 className="inline-flex h-10 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground"
               >
@@ -138,7 +138,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           <FooterCol title="Product">
             <FooterLink to="/features">Features</FooterLink>
             <FooterLink to="/pricing">Pricing</FooterLink>
-            <FooterLink to="/register">Register a pharmacy</FooterLink>
+            <FooterLink to="/contact">Register a pharmacy</FooterLink>
           </FooterCol>
 
           <FooterCol title="Company">
@@ -177,7 +177,7 @@ function FooterCol({ title, children }: { title: string; children: ReactNode }) 
   );
 }
 
-function FooterLink({ to, children }: { to: MarketingPath | "/login" | "/register"; children: ReactNode }) {
+function FooterLink({ to, children }: { to: MarketingPath | "/login"; children: ReactNode }) {
   return (
     <li>
       <Link to={to} className="text-sm text-muted-foreground hover:text-primary">

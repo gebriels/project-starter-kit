@@ -60,7 +60,7 @@ function HomePage() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                to="/register"
+                to="/contact"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-surface px-6 text-sm font-semibold text-primary transition-colors hover:bg-surface-low"
               >
                 Register your pharmacy <ArrowRight className="h-4 w-4" />

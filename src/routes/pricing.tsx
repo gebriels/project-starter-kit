@@ -150,7 +150,7 @@ function PricingPage() {
               </p>
 
               <Link
-                to="/register"
+                to="/contact"
                 className={cn(
                   "mt-6 inline-flex h-11 w-full items-center justify-center rounded-md text-sm font-semibold transition-colors",
                   plan.highlight
