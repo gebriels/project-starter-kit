@@ -48,7 +48,7 @@ interface CartLine {
 function PosPage() {
   // Every signed-in pharmacy role can sell.
   return (
-    <RequireRole roles={["owner", "admin", "staff"]}>
+    <RequireRole roles={["owner", "pharmacist", "cashier"]}>
       <PosView />
     </RequireRole>
   );
