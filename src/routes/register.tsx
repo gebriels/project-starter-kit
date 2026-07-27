@@ -27,8 +27,17 @@ export const Route = createFileRoute("/register")({
       },
     ],
   }),
-  component: RegisterPage,
+  component: RegisterRoute,
 });
+
+function RegisterRoute() {
+  return (
+    <RequirePlatformOwner>
+      <RegisterPage />
+    </RequirePlatformOwner>
+  );
+}
+
 
 function RegisterPage() {
   const router = useRouter();
