@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { supabase } from "@/db/supabase";
+import { supabase, supabaseSignup } from "@/db/supabase";
 import { RequirePlatformOwner } from "@/components/require-platform-owner";
 
 import {
