@@ -313,6 +313,12 @@ function RegisterPage() {
             {error && (
               <p className="rounded-md bg-danger-soft px-3 py-2 text-xs text-danger">{error}</p>
             )}
+            {success && (
+              <p className="rounded-md bg-primary-soft px-3 py-2 text-xs font-medium text-primary">
+                {success}
+              </p>
+            )}
+
           </form>
 
           <p className="mt-8 text-center text-sm text-muted-foreground sm:text-left">
