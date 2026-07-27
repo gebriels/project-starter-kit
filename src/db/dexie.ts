@@ -106,10 +106,23 @@ export interface UserRow {
 
 // ---------- Sync outbox ----------
 
+/** Pharmacy-level payment destinations shown at POS checkout. */
+export interface PaymentAccount {
+  id: string;
+  pharmacy_id: string;
+  provider: "telebirr" | "cbe";
+  account_name: string;
+  account_number: string;
+  is_active: boolean;
+  created_at?: string;
+}
+
 export type OutboxOp =
   | { kind: "sales.insert"; row: SaleRow }
   | { kind: "batches.upsert"; row: Batch }
-  | { kind: "expenses.insert"; row: Expense };
+  | { kind: "expenses.insert"; row: Expense }
+  | { kind: "pharmacy_settings.upsert"; row: PharmacySettings }
+  | { kind: "users.update"; id: string; patch: Partial<UserRow> };
 
 export interface OutboxEntry {
   /** auto-increment surrogate; op payload carries the domain UUID */
