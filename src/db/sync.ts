@@ -146,6 +146,20 @@ async function applyOp(op: OutboxOp): Promise<void> {
       if (error) throw new Error(error.message);
       return;
     }
+    case "pharmacy_settings.upsert": {
+      const { error } = await supabase
+        .from("pharmacy_settings")
+        .upsert(op.row, { onConflict: "pharmacy_id" });
+      if (error) throw new Error(error.message);
+      return;
+    }
+    case "users.update": {
+      // RLS restricts this to the caller's own row; never trust client ids for
+      // anything else.
+      const { error } = await supabase.from("users").update(op.patch).eq("id", op.id);
+      if (error) throw new Error(error.message);
+      return;
+    }
   }
 }
 
