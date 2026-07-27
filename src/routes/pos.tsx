@@ -351,6 +351,15 @@ function PosView() {
           </div>
         </div>
       )}
+      {payOpen && (
+        <PosPaymentModal
+          pharmacyId={pharmacyId}
+          total={total}
+          charging={charging}
+          onConfirm={confirmPayment}
+          onClose={() => setPayOpen(false)}
+        />
+      )}
       {receipt && (
         <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-success px-4 py-2 text-sm font-semibold text-success-foreground shadow-elev-lg">
           Sale committed · {receipt}
