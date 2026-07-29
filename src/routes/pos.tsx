@@ -295,7 +295,7 @@ function PosView() {
         </section>
 
         {/* Right: cart (desktop) */}
-        <aside className="hidden w-[380px] shrink-0 lg:block">
+        <aside className="hidden w-[320px] shrink-0 lg:block xl:w-[380px]">
           <CartPanel
             lines={lines}
             subtotal={subtotal}
