@@ -12,7 +12,7 @@
  *
  * Import from browser code only. `startSyncEngine()` no-ops on the server.
  */
-import { db, isBrowser, type OutboxEntry, type OutboxOp } from "./dexie";
+import { db, isBrowser, type OutboxEntry, type OutboxOp, type SaleRow } from "./dexie";
 import { supabase } from "./supabase";
 
 let started = false;
@@ -192,7 +192,7 @@ function isPermanentFailure(msg: string): boolean {
 
 
 /** Insert the sale row directly and decrement the batch (fallback path). */
-async function insertSaleDirect(row: OutboxOp extends never ? never : import("./dexie").SaleRow) {
+async function insertSaleDirect(row: SaleRow) {
   const { error } = await supabase.from("sales").insert({
     id: row.id,
     transaction_id: row.transaction_id ?? null,
