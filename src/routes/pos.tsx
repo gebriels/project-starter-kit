@@ -199,8 +199,8 @@ function PosView() {
           </div>
 
           {/* Desktop table */}
-          <div className="mt-5 hidden overflow-hidden rounded-lg border border-border bg-surface shadow-elev-sm md:block">
-            <table className="w-full text-sm">
+          <div className="mt-5 hidden overflow-x-auto rounded-lg border border-border bg-surface shadow-elev-sm md:block">
+            <table className="w-full min-w-[680px] text-sm">
               <thead>
                 <tr className="bg-surface-low">
                   <ThSm>Medication</ThSm>
