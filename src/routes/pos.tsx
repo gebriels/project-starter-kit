@@ -138,6 +138,7 @@ function PosView() {
       );
       setCart([]);
       setMobileCartOpen(false);
+      setQueuedOffline(typeof navigator !== "undefined" && !navigator.onLine);
       setReceipt(result.transaction_id);
       setTimeout(() => setReceipt(null), 2500);
     } catch (err) {
