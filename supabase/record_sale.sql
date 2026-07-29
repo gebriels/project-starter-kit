@@ -14,6 +14,22 @@
 -- Idempotency key: sale.id (client-generated UUID from crypto.randomUUID()).
 -- Conflict policy: last-write-wins on the sale row, atomic on stock.
 
+-- Atomic sale commit for offline-first POS.
+--
+-- Called by the sync engine (src/db/sync.ts) for each queued sale.
+-- Run this in your Supabase SQL editor once — it complements schema.sql.
+--
+-- Contract:
+--   * Inserts the sale row idempotently (guarded by sale.id lookup) so
+--     retries after a partial network failure don't double-charge stock.
+--   * Decrements the target batch's quantity in the SAME UPDATE so two
+--     concurrent devices can't oversell (row lock is implicit).
+--   * Raises `insufficient_stock` when the batch has less than requested,
+--     which the client surfaces as a sync error.
+--
+-- Idempotency key: sale.id (client-generated UUID from crypto.randomUUID()).
+-- Conflict policy: last-write-wins on the sale row, atomic on stock.
+
 CREATE OR REPLACE FUNCTION public.record_sale(
   p_sale_id UUID,
   p_pharmacy_id UUID,
@@ -60,4 +76,4 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.record_sale(
   UUID, UUID, UUID, UUID, INTEGER, DECIMAL, DECIMAL, TEXT, DATE
-) TO authenticated, anon, service_role;
+) TO authenticated, service_role;
