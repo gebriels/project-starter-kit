@@ -28,6 +28,11 @@ import {
 import { RequireRole } from "@/components/require-role";
 import { AppShell } from "@/components/app-shell";
 import { stockStatus, useCatalog, type Medication } from "@/lib/catalog";
+import {
+  daysUntilDate,
+  useInventoryRules,
+  useSalesStats,
+} from "@/lib/inventory-health";
 import { useSession } from "@/hooks/use-session";
 import { cn } from "@/lib/utils";
 
