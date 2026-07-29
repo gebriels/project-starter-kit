@@ -118,6 +118,7 @@ function PosView() {
   const itemCount = lines.reduce((s, x) => s + x.line.qty, 0);
   const [charging, setCharging] = useState(false);
   const [receipt, setReceipt] = useState<string | null>(null);
+  const [queuedOffline, setQueuedOffline] = useState(false);
 
   async function handleCharge() {
     if (lines.length === 0 || charging) return;
