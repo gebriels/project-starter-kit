@@ -362,7 +362,7 @@ function PosView() {
           className={cn(
             "fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-sm font-semibold shadow-elev-lg",
             queuedOffline
-              ? "bg-warning text-warning-foreground"
+              ? "bg-warning-soft text-warning-soft-foreground"
               : "bg-success text-success-foreground",
           )}
         >
