@@ -26,6 +26,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as StaffAddRouteImport } from './routes/staff.add'
 import { Route as InventoryAddRouteImport } from './routes/inventory_.add'
+import { Route as AdminPharmaciesRouteImport } from './routes/admin.pharmacies'
 import { Route as AdminPayoutRouteImport } from './routes/admin.payout'
 import { Route as InventoryAddProductIdRouteImport } from './routes/inventory_.add_.$productId'
 
@@ -114,6 +115,11 @@ const InventoryAddRoute = InventoryAddRouteImport.update({
   path: '/inventory/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPharmaciesRoute = AdminPharmaciesRouteImport.update({
+  id: '/pharmacies',
+  path: '/pharmacies',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPayoutRoute = AdminPayoutRouteImport.update({
   id: '/payout',
   path: '/payout',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/payout': typeof AdminPayoutRoute
+  '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/inventory/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/admin/': typeof AdminIndexRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/payout': typeof AdminPayoutRoute
+  '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/inventory/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/admin': typeof AdminIndexRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/payout': typeof AdminPayoutRoute
+  '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/inventory_/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/admin/': typeof AdminIndexRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/reset-password'
     | '/admin/payout'
+    | '/admin/pharmacies'
     | '/inventory/add'
     | '/staff/add'
     | '/admin/'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/reset-password'
     | '/admin/payout'
+    | '/admin/pharmacies'
     | '/inventory/add'
     | '/staff/add'
     | '/admin'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/reset-password'
     | '/admin/payout'
+    | '/admin/pharmacies'
     | '/inventory_/add'
     | '/staff/add'
     | '/admin/'
@@ -394,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventoryAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/pharmacies': {
+      id: '/admin/pharmacies'
+      path: '/pharmacies'
+      fullPath: '/admin/pharmacies'
+      preLoaderRoute: typeof AdminPharmaciesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/payout': {
       id: '/admin/payout'
       path: '/payout'
@@ -413,11 +432,13 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminPayoutRoute: typeof AdminPayoutRoute
+  AdminPharmaciesRoute: typeof AdminPharmaciesRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminPayoutRoute: AdminPayoutRoute,
+  AdminPharmaciesRoute: AdminPharmaciesRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
