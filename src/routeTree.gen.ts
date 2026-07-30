@@ -25,6 +25,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StaffAddRouteImport } from './routes/staff.add'
 import { Route as InventoryAddRouteImport } from './routes/inventory_.add'
+import { Route as AdminPayoutRouteImport } from './routes/admin.payout'
 import { Route as InventoryAddProductIdRouteImport } from './routes/inventory_.add_.$productId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -107,6 +108,11 @@ const InventoryAddRoute = InventoryAddRouteImport.update({
   path: '/inventory/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPayoutRoute = AdminPayoutRouteImport.update({
+  id: '/payout',
+  path: '/payout',
+  getParentRoute: () => AdminRoute,
+} as any)
 const InventoryAddProductIdRoute = InventoryAddProductIdRouteImport.update({
   id: '/inventory_/add_/$productId',
   path: '/inventory/add/$productId',
@@ -115,7 +121,7 @@ const InventoryAddProductIdRoute = InventoryAddProductIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
@@ -128,13 +134,14 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/payout': typeof AdminPayoutRoute
   '/inventory/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/inventory/add/$productId': typeof InventoryAddProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/payout': typeof AdminPayoutRoute
   '/inventory/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/inventory/add/$productId': typeof InventoryAddProductIdRoute
@@ -154,7 +162,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/payout': typeof AdminPayoutRoute
   '/inventory_/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/inventory_/add_/$productId': typeof InventoryAddProductIdRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reports'
     | '/reset-password'
+    | '/admin/payout'
     | '/inventory/add'
     | '/staff/add'
     | '/inventory/add/$productId'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reports'
     | '/reset-password'
+    | '/admin/payout'
     | '/inventory/add'
     | '/staff/add'
     | '/inventory/add/$productId'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reports'
     | '/reset-password'
+    | '/admin/payout'
     | '/inventory_/add'
     | '/staff/add'
     | '/inventory_/add_/$productId'
@@ -233,7 +245,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
@@ -365,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventoryAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/payout': {
+      id: '/admin/payout'
+      path: '/payout'
+      fullPath: '/admin/payout'
+      preLoaderRoute: typeof AdminPayoutRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/inventory_/add_/$productId': {
       id: '/inventory_/add_/$productId'
       path: '/inventory/add/$productId'
@@ -375,9 +394,19 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminPayoutRoute: typeof AdminPayoutRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminPayoutRoute: AdminPayoutRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
