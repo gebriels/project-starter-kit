@@ -5,15 +5,23 @@
  */
 import { supabase } from "@/lib/supabase";
 
+export type PayoutStatus = "pending" | "verified" | "rejected";
+export type PayoutMethod = "Cash" | "CBE" | "Telebirr";
+
 export interface PlatformPayout {
   id: string;
   pharmacy_id: string;
   platform_config_id: string | null;
   amount: number;
-  payment_method: "Cash" | "CBE" | "Telebirr";
+  payment_method: PayoutMethod;
   transaction_reference: string;
-  status: "pending" | "verified" | "rejected";
+  status: PayoutStatus;
   paid_at: string;
+}
+
+/** Payout enriched with the pharmacy name, for the admin console table. */
+export interface AdminPayoutRow extends PlatformPayout {
+  pharmacy_name: string;
 }
 
 export async function listPayouts(pharmacyId?: string): Promise<PlatformPayout[]> {
@@ -22,6 +30,21 @@ export async function listPayouts(pharmacyId?: string): Promise<PlatformPayout[]
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []) as PlatformPayout[];
+}
+
+/** All payouts across every tenant, joined with pharmacy names. */
+export async function listAllPayoutsForAdmin(): Promise<AdminPayoutRow[]> {
+  const { data, error } = await supabase
+    .from("platform_payouts")
+    .select("*, pharmacies(name)")
+    .order("paid_at", { ascending: false });
+  if (error) throw error;
+  return ((data ?? []) as Array<PlatformPayout & { pharmacies?: { name?: string } | null }>).map(
+    (r) => ({
+      ...r,
+      pharmacy_name: r.pharmacies?.name ?? "Unknown pharmacy",
+    }),
+  );
 }
 
 export async function submitPayout(
@@ -36,10 +59,10 @@ export async function submitPayout(
   return data as PlatformPayout;
 }
 
-export async function setPayoutStatus(
-  id: string,
-  status: PlatformPayout["status"],
-): Promise<void> {
+export async function setPayoutStatus(id: string, status: PayoutStatus): Promise<void> {
   const { error } = await supabase.from("platform_payouts").update({ status }).eq("id", id);
   if (error) throw error;
 }
+
+export const approvePayout = (id: string) => setPayoutStatus(id, "verified");
+export const rejectPayout = (id: string) => setPayoutStatus(id, "rejected");

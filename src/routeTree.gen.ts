@@ -21,9 +21,20 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as StaffAddRouteImport } from './routes/staff.add'
 import { Route as InventoryAddRouteImport } from './routes/inventory_.add'
+import { Route as AdminTeamRouteImport } from './routes/admin.team'
+import { Route as AdminSupportRouteImport } from './routes/admin.support'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminProfileRouteImport } from './routes/admin.profile'
+import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminPharmaciesRouteImport } from './routes/admin.pharmacies'
+import { Route as AdminPayoutRouteImport } from './routes/admin.payout'
+import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as InventoryAddProductIdRouteImport } from './routes/inventory_.add_.$productId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -86,10 +97,20 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const StaffAddRoute = StaffAddRouteImport.update({
   id: '/staff/add',
@@ -101,6 +122,51 @@ const InventoryAddRoute = InventoryAddRouteImport.update({
   path: '/inventory/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTeamRoute = AdminTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSupportRoute = AdminSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductsRoute = AdminProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPharmaciesRoute = AdminPharmaciesRouteImport.update({
+  id: '/pharmacies',
+  path: '/pharmacies',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPayoutRoute = AdminPayoutRouteImport.update({
+  id: '/payout',
+  path: '/payout',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLogsRoute = AdminLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AdminRoute,
+} as any)
 const InventoryAddProductIdRoute = InventoryAddProductIdRouteImport.update({
   id: '/inventory_/add_/$productId',
   path: '/inventory/add/$productId',
@@ -109,6 +175,7 @@ const InventoryAddProductIdRoute = InventoryAddProductIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
@@ -121,8 +188,18 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/payout': typeof AdminPayoutRoute
+  '/admin/pharmacies': typeof AdminPharmaciesRoute
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/team': typeof AdminTeamRoute
   '/inventory/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
+  '/admin/': typeof AdminIndexRoute
   '/inventory/add/$productId': typeof InventoryAddProductIdRoute
 }
 export interface FileRoutesByTo {
@@ -139,13 +216,24 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/payout': typeof AdminPayoutRoute
+  '/admin/pharmacies': typeof AdminPharmaciesRoute
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/team': typeof AdminTeamRoute
   '/inventory/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
+  '/admin': typeof AdminIndexRoute
   '/inventory/add/$productId': typeof InventoryAddProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/features': typeof FeaturesRoute
@@ -158,14 +246,25 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin/logs': typeof AdminLogsRoute
+  '/admin/payout': typeof AdminPayoutRoute
+  '/admin/pharmacies': typeof AdminPharmaciesRoute
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/profile': typeof AdminProfileRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/team': typeof AdminTeamRoute
   '/inventory_/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
+  '/admin/': typeof AdminIndexRoute
   '/inventory_/add_/$productId': typeof InventoryAddProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/contact'
     | '/dashboard'
     | '/features'
@@ -178,8 +277,18 @@ export interface FileRouteTypes {
     | '/register'
     | '/reports'
     | '/reset-password'
+    | '/admin/logs'
+    | '/admin/payout'
+    | '/admin/pharmacies'
+    | '/admin/products'
+    | '/admin/profile'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/support'
+    | '/admin/team'
     | '/inventory/add'
     | '/staff/add'
+    | '/admin/'
     | '/inventory/add/$productId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -196,12 +305,23 @@ export interface FileRouteTypes {
     | '/register'
     | '/reports'
     | '/reset-password'
+    | '/admin/logs'
+    | '/admin/payout'
+    | '/admin/pharmacies'
+    | '/admin/products'
+    | '/admin/profile'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/support'
+    | '/admin/team'
     | '/inventory/add'
     | '/staff/add'
+    | '/admin'
     | '/inventory/add/$productId'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/contact'
     | '/dashboard'
     | '/features'
@@ -214,13 +334,24 @@ export interface FileRouteTypes {
     | '/register'
     | '/reports'
     | '/reset-password'
+    | '/admin/logs'
+    | '/admin/payout'
+    | '/admin/pharmacies'
+    | '/admin/products'
+    | '/admin/profile'
+    | '/admin/reports'
+    | '/admin/settings'
+    | '/admin/support'
+    | '/admin/team'
     | '/inventory_/add'
     | '/staff/add'
+    | '/admin/'
     | '/inventory_/add_/$productId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   FeaturesRoute: typeof FeaturesRoute
@@ -324,12 +455,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/staff/add': {
       id: '/staff/add'
@@ -345,6 +490,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventoryAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/team': {
+      id: '/admin/team'
+      path: '/team'
+      fullPath: '/admin/team'
+      preLoaderRoute: typeof AdminTeamRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/support': {
+      id: '/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AdminSupportRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/products': {
+      id: '/admin/products'
+      path: '/products'
+      fullPath: '/admin/products'
+      preLoaderRoute: typeof AdminProductsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/pharmacies': {
+      id: '/admin/pharmacies'
+      path: '/pharmacies'
+      fullPath: '/admin/pharmacies'
+      preLoaderRoute: typeof AdminPharmaciesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/payout': {
+      id: '/admin/payout'
+      path: '/payout'
+      fullPath: '/admin/payout'
+      preLoaderRoute: typeof AdminPayoutRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/logs': {
+      id: '/admin/logs'
+      path: '/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AdminLogsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/inventory_/add_/$productId': {
       id: '/inventory_/add_/$productId'
       path: '/inventory/add/$productId'
@@ -355,8 +563,37 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminLogsRoute: typeof AdminLogsRoute
+  AdminPayoutRoute: typeof AdminPayoutRoute
+  AdminPharmaciesRoute: typeof AdminPharmaciesRoute
+  AdminProductsRoute: typeof AdminProductsRoute
+  AdminProfileRoute: typeof AdminProfileRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminSupportRoute: typeof AdminSupportRoute
+  AdminTeamRoute: typeof AdminTeamRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminLogsRoute: AdminLogsRoute,
+  AdminPayoutRoute: AdminPayoutRoute,
+  AdminPharmaciesRoute: AdminPharmaciesRoute,
+  AdminProductsRoute: AdminProductsRoute,
+  AdminProfileRoute: AdminProfileRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminSupportRoute: AdminSupportRoute,
+  AdminTeamRoute: AdminTeamRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   FeaturesRoute: FeaturesRoute,
