@@ -54,7 +54,10 @@ export function AdminShell({
   const { profile, user } = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const name = profile?.full_name || user?.email || "Platform owner";
+  const name =
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") ||
+    user?.email ||
+    "Platform owner";
 
   return (
     <div className="flex min-h-screen bg-surface-low">
