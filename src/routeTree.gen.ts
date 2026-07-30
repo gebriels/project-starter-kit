@@ -26,6 +26,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as StaffAddRouteImport } from './routes/staff.add'
 import { Route as InventoryAddRouteImport } from './routes/inventory_.add'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPharmaciesRouteImport } from './routes/admin.pharmacies'
@@ -117,6 +118,11 @@ const InventoryAddRoute = InventoryAddRouteImport.update({
   path: '/inventory/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminReportsRoute = AdminReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/inventory/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/admin/': typeof AdminIndexRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/inventory/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/admin': typeof AdminIndexRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/inventory_/add': typeof InventoryAddRoute
   '/staff/add': typeof StaffAddRoute
   '/admin/': typeof AdminIndexRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/admin/pharmacies'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/settings'
     | '/inventory/add'
     | '/staff/add'
     | '/admin/'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/admin/pharmacies'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/settings'
     | '/inventory/add'
     | '/staff/add'
     | '/admin'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/admin/pharmacies'
     | '/admin/products'
     | '/admin/reports'
+    | '/admin/settings'
     | '/inventory_/add'
     | '/staff/add'
     | '/admin/'
@@ -430,6 +442,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventoryAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/reports': {
       id: '/admin/reports'
       path: '/reports'
@@ -473,6 +492,7 @@ interface AdminRouteChildren {
   AdminPharmaciesRoute: typeof AdminPharmaciesRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -481,6 +501,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPharmaciesRoute: AdminPharmaciesRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
