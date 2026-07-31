@@ -34,7 +34,6 @@ CREATE TABLE pharmacies (
   -- Subscription/Billing Fields
   tier TEXT DEFAULT 'basic' CHECK (tier IN ('basic', 'pro', 'enterprise')),
   subscription_status TEXT DEFAULT 'trial' CHECK (subscription_status IN ('trial', 'active', 'suspended', 'expired')),
-  billing_cycle_day INTEGER DEFAULT 1, -- The day of the month they pay (e.g., 5th)
   next_payment_due DATE,              -- The actual calendar date their next payment is due
   
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())

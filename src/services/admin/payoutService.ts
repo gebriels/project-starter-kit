@@ -60,8 +60,47 @@ export async function submitPayout(
 }
 
 export async function setPayoutStatus(id: string, status: PayoutStatus): Promise<void> {
-  const { error } = await supabase.from("platform_payouts").update({ status }).eq("id", id);
-  if (error) throw error;
+  const { data, error } = await supabase
+    .from("platform_payouts")
+    .update({ status })
+    .eq("id", id)
+    .select("id, pharmacy_id")
+    .single();
+  if (error) throw new Error(error.message);
+
+  // Approving a payout activates the pharmacy's subscription and moves the
+  // next due date one month forward.
+  if (status === "verified" && data?.pharmacy_id) {
+    await activateSubscription(data.pharmacy_id as string);
+  }
+}
+
+function nextMonthISO(from = new Date()): string {
+  const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const day = d.getDate();
+  d.setMonth(d.getMonth() + 1);
+  // Clamp overflow (e.g. Jan 31 -> Mar 3) back to the last day of the month.
+  if (d.getDate() !== day) d.setDate(0);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Mark the pharmacy active and push `next_payment_due` to next month. */
+export async function activateSubscription(pharmacyId: string): Promise<void> {
+  const { data } = await supabase
+    .from("pharmacies")
+    .select("next_payment_due")
+    .eq("id", pharmacyId)
+    .maybeSingle();
+
+  const currentDue = (data as { next_payment_due?: string | null } | null)?.next_payment_due;
+  const base =
+    currentDue && new Date(currentDue) > new Date() ? new Date(currentDue) : new Date();
+
+  const { error } = await supabase
+    .from("pharmacies")
+    .update({ subscription_status: "active", next_payment_due: nextMonthISO(base) })
+    .eq("id", pharmacyId);
+  if (error) throw new Error(error.message);
 }
 
 export const approvePayout = (id: string) => setPayoutStatus(id, "verified");

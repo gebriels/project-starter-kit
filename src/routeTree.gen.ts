@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReportsRouteImport } from './routes/reports'
-import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PosRouteImport } from './routes/pos'
@@ -30,6 +29,7 @@ import { Route as AdminTeamRouteImport } from './routes/admin.team'
 import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
+import { Route as AdminRegisterRouteImport } from './routes/admin.register'
 import { Route as AdminProfileRouteImport } from './routes/admin.profile'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPharmaciesRouteImport } from './routes/admin.pharmacies'
@@ -45,11 +45,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -142,6 +137,11 @@ const AdminReportsRoute = AdminReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminRegisterRoute = AdminRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminProfileRoute = AdminProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -185,7 +185,6 @@ export interface FileRoutesByFullPath {
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
-  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -193,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/profile': typeof AdminProfileRoute
+  '/admin/register': typeof AdminRegisterRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
@@ -213,7 +213,6 @@ export interface FileRoutesByTo {
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
-  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -221,6 +220,7 @@ export interface FileRoutesByTo {
   '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/profile': typeof AdminProfileRoute
+  '/admin/register': typeof AdminRegisterRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
@@ -243,7 +243,6 @@ export interface FileRoutesById {
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
-  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -251,6 +250,7 @@ export interface FileRoutesById {
   '/admin/pharmacies': typeof AdminPharmaciesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/profile': typeof AdminProfileRoute
+  '/admin/register': typeof AdminRegisterRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
@@ -274,7 +274,6 @@ export interface FileRouteTypes {
     | '/pos'
     | '/pricing'
     | '/profile'
-    | '/register'
     | '/reports'
     | '/reset-password'
     | '/admin/logs'
@@ -282,6 +281,7 @@ export interface FileRouteTypes {
     | '/admin/pharmacies'
     | '/admin/products'
     | '/admin/profile'
+    | '/admin/register'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/support'
@@ -302,7 +302,6 @@ export interface FileRouteTypes {
     | '/pos'
     | '/pricing'
     | '/profile'
-    | '/register'
     | '/reports'
     | '/reset-password'
     | '/admin/logs'
@@ -310,6 +309,7 @@ export interface FileRouteTypes {
     | '/admin/pharmacies'
     | '/admin/products'
     | '/admin/profile'
+    | '/admin/register'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/support'
@@ -331,7 +331,6 @@ export interface FileRouteTypes {
     | '/pos'
     | '/pricing'
     | '/profile'
-    | '/register'
     | '/reports'
     | '/reset-password'
     | '/admin/logs'
@@ -339,6 +338,7 @@ export interface FileRouteTypes {
     | '/admin/pharmacies'
     | '/admin/products'
     | '/admin/profile'
+    | '/admin/register'
     | '/admin/reports'
     | '/admin/settings'
     | '/admin/support'
@@ -361,7 +361,6 @@ export interface RootRouteChildren {
   PosRoute: typeof PosRoute
   PricingRoute: typeof PricingRoute
   ProfileRoute: typeof ProfileRoute
-  RegisterRoute: typeof RegisterRoute
   ReportsRoute: typeof ReportsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   InventoryAddRoute: typeof InventoryAddRoute
@@ -383,13 +382,6 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof ReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -518,6 +510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminReportsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/register': {
+      id: '/admin/register'
+      path: '/register'
+      fullPath: '/admin/register'
+      preLoaderRoute: typeof AdminRegisterRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/profile': {
       id: '/admin/profile'
       path: '/profile'
@@ -569,6 +568,7 @@ interface AdminRouteChildren {
   AdminPharmaciesRoute: typeof AdminPharmaciesRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminProfileRoute: typeof AdminProfileRoute
+  AdminRegisterRoute: typeof AdminRegisterRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSupportRoute: typeof AdminSupportRoute
@@ -582,6 +582,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminPharmaciesRoute: AdminPharmaciesRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminProfileRoute: AdminProfileRoute,
+  AdminRegisterRoute: AdminRegisterRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSupportRoute: AdminSupportRoute,
@@ -603,7 +604,6 @@ const rootRouteChildren: RootRouteChildren = {
   PosRoute: PosRoute,
   PricingRoute: PricingRoute,
   ProfileRoute: ProfileRoute,
-  RegisterRoute: RegisterRoute,
   ReportsRoute: ReportsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   InventoryAddRoute: InventoryAddRoute,
