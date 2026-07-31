@@ -144,3 +144,10 @@ CREATE TABLE platform_payouts (
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'verified', 'rejected')),
     paid_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
+
+create table cities (
+  id uuid default gen_random_uuid() primary key,
+  name text not null unique,
+  country text not null default 'Ethiopia',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
