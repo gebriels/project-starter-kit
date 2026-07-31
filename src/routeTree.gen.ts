@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReportsRouteImport } from './routes/reports'
-import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PosRouteImport } from './routes/pos'
@@ -46,11 +45,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -191,7 +185,6 @@ export interface FileRoutesByFullPath {
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
-  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -220,7 +213,6 @@ export interface FileRoutesByTo {
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
-  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -251,7 +243,6 @@ export interface FileRoutesById {
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
-  '/register': typeof RegisterRoute
   '/reports': typeof ReportsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -283,7 +274,6 @@ export interface FileRouteTypes {
     | '/pos'
     | '/pricing'
     | '/profile'
-    | '/register'
     | '/reports'
     | '/reset-password'
     | '/admin/logs'
@@ -312,7 +302,6 @@ export interface FileRouteTypes {
     | '/pos'
     | '/pricing'
     | '/profile'
-    | '/register'
     | '/reports'
     | '/reset-password'
     | '/admin/logs'
@@ -342,7 +331,6 @@ export interface FileRouteTypes {
     | '/pos'
     | '/pricing'
     | '/profile'
-    | '/register'
     | '/reports'
     | '/reset-password'
     | '/admin/logs'
@@ -373,7 +361,6 @@ export interface RootRouteChildren {
   PosRoute: typeof PosRoute
   PricingRoute: typeof PricingRoute
   ProfileRoute: typeof ProfileRoute
-  RegisterRoute: typeof RegisterRoute
   ReportsRoute: typeof ReportsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   InventoryAddRoute: typeof InventoryAddRoute
@@ -395,13 +382,6 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof ReportsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -624,7 +604,6 @@ const rootRouteChildren: RootRouteChildren = {
   PosRoute: PosRoute,
   PricingRoute: PricingRoute,
   ProfileRoute: ProfileRoute,
-  RegisterRoute: RegisterRoute,
   ReportsRoute: ReportsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   InventoryAddRoute: InventoryAddRoute,
