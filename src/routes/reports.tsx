@@ -10,6 +10,7 @@ import {
   Receipt,
   CreditCard,
   Plus,
+  MoreVertical,
 } from "lucide-react";
 import {
   ResponsiveContainer,
