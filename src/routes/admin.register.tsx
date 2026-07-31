@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase, supabaseSignup } from "@/db/supabase";
 
 import {
   Building2,
   CheckCircle2,
+  Crosshair,
+  Loader2,
   Mail,
   MapPin,
   Phone,
@@ -12,6 +14,7 @@ import {
   ShieldCheck,
   User,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/admin/register")({
   head: () => ({
@@ -33,37 +36,114 @@ function generateTempPassword() {
   return `Ph!${Array.from(bytes, (b) => b.toString(36)).join("")}A9`;
 }
 
+type CityRow = { id: string; name: string; country: string };
+
+const COUNTRIES = ["Ethiopia"];
+
+const EMPTY_FORM = {
+  pharmacyName: "",
+  country: "Ethiopia",
+  city: "",
+  firstName: "",
+  lastName: "",
+  phone: "",
+  email: "",
+};
+
 function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    pharmacyName: "",
-    country: "Ethiopia",
-    city: "",
-    location: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
+
+  const [cities, setCities] = useState<CityRow[]>([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoState, setGeoState] = useState<"idle" | "locating" | "done" | "error">("idle");
+  const [geoMessage, setGeoMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data, error: cityError } = await supabase
+        .from("cities")
+        .select("id, name, country")
+        .order("name");
+      if (!alive) return;
+      if (cityError) setGeoMessage(`Could not load cities: ${cityError.message}`);
+      setCities((data as CityRow[]) ?? []);
+      setCitiesLoading(false);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const cityOptions = cities.filter((c) => !form.country || c.country === form.country);
 
   function set<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
   function reset() {
-    setForm({
-      pharmacyName: "",
-      country: "Ethiopia",
-      city: "",
-      location: "",
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-    });
+    setForm(EMPTY_FORM);
+    setCoords(null);
+    setGeoState("idle");
+    setGeoMessage(null);
   }
+
+  /** Capture GPS coordinates and try to auto-select the matching city. */
+  function detectLocation() {
+    if (!("geolocation" in navigator)) {
+      setGeoState("error");
+      setGeoMessage("This device or browser does not support location detection.");
+      return;
+    }
+    setGeoState("locating");
+    setGeoMessage(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setCoords({ lat, lng });
+        setGeoState("done");
+        setGeoMessage(`Coordinates captured: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+
+        // Optional reverse geocoding — best effort, never blocks registration.
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`,
+            { headers: { Accept: "application/json" } },
+          );
+          if (!res.ok) return;
+          const json = (await res.json()) as {
+            address?: Record<string, string | undefined>;
+          };
+          const a = json.address ?? {};
+          const guess = a["city"] ?? a["town"] ?? a["state"] ?? a["county"] ?? a["village"];
+          if (!guess) return;
+          const match = cities.find(
+            (c) => c.name.toLowerCase() === guess.toLowerCase().trim(),
+          );
+          if (match) {
+            setForm((f) => ({ ...f, country: match.country, city: match.name }));
+            setGeoMessage(
+              `Coordinates captured: ${lat.toFixed(5)}, ${lng.toFixed(5)} · matched ${match.name}`,
+            );
+          }
+        } catch {
+          /* reverse geocoding is optional */
+        }
+      },
+      (err) => {
+        setGeoState("error");
+        setGeoMessage(err.message || "Could not read your current location.");
+      },
+      { enableHighAccuracy: true, timeout: 15000 },
+    );
+  }
+
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -101,6 +181,9 @@ function RegisterPage() {
         name: form.pharmacyName.trim(),
         country: form.country.trim(),
         city: form.city.trim(),
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lng ?? null,
+        location_verified_by_admin: coords != null,
       })
       .select("id")
       .single();
@@ -211,28 +294,57 @@ function RegisterPage() {
                   onChange={(v) => set("pharmacyName", v)}
                   placeholder="Central Care Pharmacy"
                 />
-                <TextField
+                <SelectField
                   label="Country"
                   required
                   value={form.country}
                   onChange={(v) => set("country", v)}
+                  options={COUNTRIES.map((c) => ({ value: c, label: c }))}
                 />
-                <TextField
+                <SelectField
                   label="City"
                   required
+                  icon={<MapPin className="h-4 w-4" />}
                   value={form.city}
                   onChange={(v) => set("city", v)}
-                  placeholder="Addis Ababa"
-                />
-                <TextField
-                  label="Location / area"
-                  icon={<MapPin className="h-4 w-4" />}
-                  value={form.location}
-                  onChange={(v) => set("location", v)}
-                  placeholder="Bole, Namibia Street"
+                  placeholder={citiesLoading ? "Loading cities…" : "Select a city"}
+                  options={cityOptions.map((c) => ({ value: c.name, label: c.name }))}
                 />
               </div>
+
+              <div className="mt-4 rounded-md border border-border bg-surface-low p-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={detectLocation}
+                    disabled={geoState === "locating"}
+                    className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
+                  >
+                    {geoState === "locating" ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Crosshair className="h-4 w-4" />
+                    )}
+                    {geoState === "locating" ? "Detecting…" : "Detect Current Location"}
+                  </button>
+                  {coords && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary">
+                      <CheckCircle2 className="h-4 w-4" /> GPS pinned
+                    </span>
+                  )}
+                </div>
+                <p
+                  className={
+                    "mt-2 text-xs " +
+                    (geoState === "error" ? "text-danger" : "text-muted-foreground")
+                  }
+                >
+                  {geoMessage ??
+                    "Optional. Use this on-site to pin exact coordinates; otherwise only country and city are saved."}
+                </p>
+              </div>
             </FieldGroup>
+
 
             <FieldGroup step="02" title="Owner Account" icon={<User className="h-4 w-4" />}>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -384,3 +496,53 @@ function TextField({
     </label>
   );
 }
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  required,
+  placeholder = "Select…",
+  icon,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  required?: boolean;
+  placeholder?: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+        {label} {required && <span className="text-danger">*</span>}
+      </span>
+      <div className="relative">
+        {icon && (
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-subtle-foreground">
+            {icon}
+          </span>
+        )}
+        <select
+          required={required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={
+            "h-11 w-full appearance-none rounded-md border border-border bg-surface px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 " +
+            (icon ? "pl-10" : "")
+          }
+        >
+          <option value="">{placeholder}</option>
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    </label>
+  );
+}
+
