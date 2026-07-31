@@ -181,6 +181,9 @@ function RegisterPage() {
         name: form.pharmacyName.trim(),
         country: form.country.trim(),
         city: form.city.trim(),
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lng ?? null,
+        location_verified_by_admin: coords != null,
       })
       .select("id")
       .single();
