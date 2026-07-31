@@ -291,28 +291,57 @@ function RegisterPage() {
                   onChange={(v) => set("pharmacyName", v)}
                   placeholder="Central Care Pharmacy"
                 />
-                <TextField
+                <SelectField
                   label="Country"
                   required
                   value={form.country}
                   onChange={(v) => set("country", v)}
+                  options={COUNTRIES.map((c) => ({ value: c, label: c }))}
                 />
-                <TextField
+                <SelectField
                   label="City"
                   required
+                  icon={<MapPin className="h-4 w-4" />}
                   value={form.city}
                   onChange={(v) => set("city", v)}
-                  placeholder="Addis Ababa"
-                />
-                <TextField
-                  label="Location / area"
-                  icon={<MapPin className="h-4 w-4" />}
-                  value={form.location}
-                  onChange={(v) => set("location", v)}
-                  placeholder="Bole, Namibia Street"
+                  placeholder={citiesLoading ? "Loading cities…" : "Select a city"}
+                  options={cityOptions.map((c) => ({ value: c.name, label: c.name }))}
                 />
               </div>
+
+              <div className="mt-4 rounded-md border border-border bg-surface-low p-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={detectLocation}
+                    disabled={geoState === "locating"}
+                    className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-60"
+                  >
+                    {geoState === "locating" ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Crosshair className="h-4 w-4" />
+                    )}
+                    {geoState === "locating" ? "Detecting…" : "Detect Current Location"}
+                  </button>
+                  {coords && (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary">
+                      <CheckCircle2 className="h-4 w-4" /> GPS pinned
+                    </span>
+                  )}
+                </div>
+                <p
+                  className={
+                    "mt-2 text-xs " +
+                    (geoState === "error" ? "text-danger" : "text-muted-foreground")
+                  }
+                >
+                  {geoMessage ??
+                    "Optional. Use this on-site to pin exact coordinates; otherwise only country and city are saved."}
+                </p>
+              </div>
             </FieldGroup>
+
 
             <FieldGroup step="02" title="Owner Account" icon={<User className="h-4 w-4" />}>
               <div className="grid gap-4 sm:grid-cols-2">
