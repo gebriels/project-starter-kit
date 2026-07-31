@@ -1071,24 +1071,58 @@ function FinancialsLog() {
             </tr>
           </thead>
           <tbody>
-            {upcoming.map((u) => (
-              <tr key={u.id} className="border-t border-border">
-                <Td className="font-medium text-foreground">{u.name}</Td>
-                <Td className="font-mono-data text-muted-foreground">{prettyDate(u.dueDate)}</Td>
-                <Td align="right" className="font-mono-data font-semibold text-foreground">
-                  {money(u.amount)}
-                </Td>
-                <Td align="right">
-                  <button
-                    type="button"
-                    onClick={() => void markPaid(u)}
-                    className="text-xs font-semibold text-primary hover:underline"
-                  >
-                    Mark Paid
-                  </button>
-                </Td>
-              </tr>
-            ))}
+            {upcoming.map((u) => {
+              const isPaid = u.source.date > expenseService.todayIso();
+              return (
+                <tr key={u.id} className="border-t border-border">
+                  <Td className="font-medium text-foreground">{u.name}</Td>
+                  <Td className="font-mono-data text-muted-foreground">
+                    {prettyDate(isPaid ? u.source.date : u.dueDate)}
+                  </Td>
+                  <Td align="right" className="font-mono-data font-semibold text-foreground">
+                    {money(u.amount)}
+                  </Td>
+                  <Td align="right">
+                    <div className="flex items-center justify-end gap-2">
+                      {isPaid ? (
+                        <span className="inline-flex items-center rounded-full bg-success-soft px-2 py-0.5 text-xs font-semibold text-success-soft-foreground">
+                          Paid
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => void markPaid(u)}
+                          className="text-xs font-semibold text-primary hover:underline"
+                        >
+                          Mark Paid
+                        </button>
+                      )}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          aria-label="More actions"
+                          onClick={() => setMenuFor((m) => (m === u.id ? null : u.id))}
+                          className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-surface-low hover:text-foreground"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                        {menuFor === u.id && (
+                          <div className="absolute right-0 z-20 mt-1 w-36 overflow-hidden rounded-md border border-border bg-surface text-left shadow-elev-md">
+                            <button
+                              type="button"
+                              onClick={() => void removeSeries(u)}
+                              className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold text-danger hover:bg-danger-soft"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Td>
+                </tr>
+              );
+            })}
             {upcoming.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-5 py-10 text-center text-muted-foreground">
