@@ -36,37 +36,114 @@ function generateTempPassword() {
   return `Ph!${Array.from(bytes, (b) => b.toString(36)).join("")}A9`;
 }
 
+type CityRow = { id: string; name: string; country: string };
+
+const COUNTRIES = ["Ethiopia"];
+
+const EMPTY_FORM = {
+  pharmacyName: "",
+  country: "Ethiopia",
+  city: "",
+  firstName: "",
+  lastName: "",
+  phone: "",
+  email: "",
+};
+
 function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    pharmacyName: "",
-    country: "Ethiopia",
-    city: "",
-    location: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
+
+  const [cities, setCities] = useState<CityRow[]>([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoState, setGeoState] = useState<"idle" | "locating" | "done" | "error">("idle");
+  const [geoMessage, setGeoMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data, error: cityError } = await supabase
+        .from("cities")
+        .select("id, name, country")
+        .order("name");
+      if (!alive) return;
+      if (cityError) setGeoMessage(`Could not load cities: ${cityError.message}`);
+      setCities((data as CityRow[]) ?? []);
+      setCitiesLoading(false);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const cityOptions = cities.filter((c) => !form.country || c.country === form.country);
 
   function set<K extends keyof typeof form>(k: K, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
   function reset() {
-    setForm({
-      pharmacyName: "",
-      country: "Ethiopia",
-      city: "",
-      location: "",
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-    });
+    setForm(EMPTY_FORM);
+    setCoords(null);
+    setGeoState("idle");
+    setGeoMessage(null);
   }
+
+  /** Capture GPS coordinates and try to auto-select the matching city. */
+  function detectLocation() {
+    if (!("geolocation" in navigator)) {
+      setGeoState("error");
+      setGeoMessage("This device or browser does not support location detection.");
+      return;
+    }
+    setGeoState("locating");
+    setGeoMessage(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setCoords({ lat, lng });
+        setGeoState("done");
+        setGeoMessage(`Coordinates captured: ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+
+        // Optional reverse geocoding — best effort, never blocks registration.
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`,
+            { headers: { Accept: "application/json" } },
+          );
+          if (!res.ok) return;
+          const json = (await res.json()) as {
+            address?: Record<string, string | undefined>;
+          };
+          const a = json.address ?? {};
+          const guess = a["city"] ?? a["town"] ?? a["state"] ?? a["county"] ?? a["village"];
+          if (!guess) return;
+          const match = cities.find(
+            (c) => c.name.toLowerCase() === guess.toLowerCase().trim(),
+          );
+          if (match) {
+            setForm((f) => ({ ...f, country: match.country, city: match.name }));
+            setGeoMessage(
+              `Coordinates captured: ${lat.toFixed(5)}, ${lng.toFixed(5)} · matched ${match.name}`,
+            );
+          }
+        } catch {
+          /* reverse geocoding is optional */
+        }
+      },
+      (err) => {
+        setGeoState("error");
+        setGeoMessage(err.message || "Could not read your current location.");
+      },
+      { enableHighAccuracy: true, timeout: 15000 },
+    );
+  }
+
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
