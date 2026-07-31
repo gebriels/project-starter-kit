@@ -496,3 +496,53 @@ function TextField({
     </label>
   );
 }
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  required,
+  placeholder = "Select…",
+  icon,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  required?: boolean;
+  placeholder?: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+        {label} {required && <span className="text-danger">*</span>}
+      </span>
+      <div className="relative">
+        {icon && (
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-subtle-foreground">
+            {icon}
+          </span>
+        )}
+        <select
+          required={required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={
+            "h-11 w-full appearance-none rounded-md border border-border bg-surface px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 " +
+            (icon ? "pl-10" : "")
+          }
+        >
+          <option value="">{placeholder}</option>
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    </label>
+  );
+}
+
