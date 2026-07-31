@@ -950,6 +950,7 @@ function FinancialsLog() {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [menuFor, setMenuFor] = useState<string | null>(null);
 
   const upcoming = useMemo(() => expenseService.upcomingRecurring(expenses), [expenses]);
 
@@ -991,6 +992,17 @@ function FinancialsLog() {
       toast.error(err instanceof Error ? err.message : "Could not record the payment.");
     }
   };
+
+  const removeSeries = async (row: (typeof upcoming)[number]) => {
+    setMenuFor(null);
+    try {
+      await expenseService.deleteRecurringSeries(pharmacyId ?? "", row.name);
+      toast.success(`${row.name} deleted`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not delete the expense.");
+    }
+  };
+
 
   return (
     <div className="space-y-6">
