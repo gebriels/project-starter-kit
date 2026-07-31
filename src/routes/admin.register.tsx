@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase, supabaseSignup } from "@/db/supabase";
 
 import {
   Building2,
   CheckCircle2,
+  Crosshair,
+  Loader2,
   Mail,
   MapPin,
   Phone,
@@ -12,6 +14,7 @@ import {
   ShieldCheck,
   User,
 } from "lucide-react";
+
 
 export const Route = createFileRoute("/admin/register")({
   head: () => ({
