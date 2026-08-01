@@ -382,7 +382,7 @@ function PosView() {
       )}
       {charging && (
         <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-elev-lg">
-          Committing sale…
+          {ordersEnabled ? "Placing order…" : "Committing sale…"}
         </div>
       )}
       {receipt && (
@@ -396,7 +396,9 @@ function PosView() {
         >
           {queuedOffline
             ? `Saved offline · syncs when online · ${receipt}`
-            : `Sale committed · ${receipt}`}
+            : receipt.startsWith("Order")
+              ? receipt
+              : `Sale committed · ${receipt}`}
         </div>
       )}
     </AppShellWithSlot>

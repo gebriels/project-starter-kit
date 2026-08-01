@@ -15,6 +15,7 @@ import {
   Plus,
   Save,
   Settings2,
+  ClipboardList,
   Sparkles,
   Users,
   UserCog,
@@ -35,6 +36,8 @@ import {
 import { submitPayout } from "@/services/admin/payoutService";
 import { listStaff, setStaffActive } from "@/services/admin/staffService";
 import type { UserRow } from "@/db/dexie";
+import { orderSettingsRepo } from "@/db/orders";
+import { useOrdersEnabled } from "@/hooks/use-orders";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/profile")({
@@ -126,6 +129,9 @@ function ProfilePageView() {
       deadstock: patch.deadstock ?? deadstock,
     });
   }
+
+  // --- Order management toggle -------------------------------------------
+  const ordersEnabled = useOrdersEnabled(pharmacyId);
 
   // --- Sign out -----------------------------------------------------------
   const [signingOut, setSigningOut] = useState(false);
@@ -274,6 +280,40 @@ function ProfilePageView() {
             </div>
           </Card>
         </div>
+
+        {/* Order management (owner only) */}
+        {role === "owner" && pharmacyId && (
+          <section className="mt-6">
+            <Card icon={ClipboardList} title="Order Management">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold">Enable the Orders tab</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    When enabled, the POS button becomes “Order” and each checkout is sent
+                    to the Orders queue for a cashier to collect payment.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={ordersEnabled}
+                  onClick={() => void orderSettingsRepo.setEnabled(pharmacyId, !ordersEnabled)}
+                  className={cn(
+                    "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors",
+                    ordersEnabled ? "bg-primary" : "bg-surface-mid",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "inline-block h-5 w-5 transform rounded-full bg-surface shadow-elev-sm transition-transform",
+                      ordersEnabled ? "translate-x-6" : "translate-x-1",
+                    )}
+                  />
+                </button>
+              </div>
+            </Card>
+          </section>
+        )}
 
         {/* Subscription */}
         <section className="mt-6">
