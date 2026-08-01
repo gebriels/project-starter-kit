@@ -7,16 +7,18 @@ import {
   Bell,
   Pill,
   User,
+  ClipboardList,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { SyncStatus } from "@/components/sync-status";
 import { useSession } from "@/hooks/use-session";
+import { useOrdersEnabled } from "@/hooks/use-orders";
 import type { Role } from "@/db/session";
 
 
 type NavItem = {
-  to: "/dashboard" | "/pos" | "/inventory" | "/reports" | "/profile";
+  to: "/dashboard" | "/pos" | "/orders" | "/inventory" | "/reports" | "/profile";
   label: string;
   icon: typeof LayoutDashboard;
   match: string[];
@@ -27,6 +29,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, match: ["/dashboard"] },
   { to: "/pos", label: "POS", icon: ScanLine, match: ["/pos"] },
+  { to: "/orders", label: "Orders", icon: ClipboardList, match: ["/orders"] },
   {
     to: "/inventory",
     label: "Inventory",
@@ -92,7 +95,12 @@ export function AppShellWithSlot({
 /** Nav filtered by the signed-in user's role. */
 function useNavItems(): NavItem[] {
   const { role } = useSession();
-  return navItems.filter((i) => !i.roles || (!!role && i.roles.includes(role)));
+  const ordersEnabled = useOrdersEnabled();
+  return navItems.filter(
+    (i) =>
+      (i.to !== "/orders" || ordersEnabled) &&
+      (!i.roles || (!!role && i.roles.includes(role))),
+  );
 }
 
 function initialsOf(first?: string, last?: string) {
