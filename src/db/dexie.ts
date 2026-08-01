@@ -177,6 +177,7 @@ class PhamdaDB extends Dexie {
   expenses!: Table<Expense, string>;
   users!: Table<UserRow, string>;
   payment_accounts!: Table<PaymentAccount, string>;
+  orders!: Table<OrderRow, string>;
   outbox!: Table<OutboxEntry, number>;
   meta!: Table<Meta, string>;
 
@@ -196,6 +197,9 @@ class PhamdaDB extends Dexie {
     });
     this.version(2).stores({
       payment_accounts: "id, pharmacy_id, provider, [pharmacy_id+provider]",
+    });
+    this.version(3).stores({
+      orders: "id, pharmacy_id, status, created_at, [pharmacy_id+status]",
     });
   }
 }
