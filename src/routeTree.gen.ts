@@ -15,6 +15,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PosRouteImport } from './routes/pos'
+import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as InventoryRouteImport } from './routes/inventory'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -67,6 +68,11 @@ const PricingRoute = PricingRouteImport.update({
 const PosRoute = PosRouteImport.update({
   id: '/pos',
   path: '/pos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/inventory': typeof InventoryRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/inventory': typeof InventoryRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
@@ -257,6 +265,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/inventory': typeof InventoryRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/pos': typeof PosRoute
   '/pricing': typeof PricingRoute
   '/profile': typeof ProfileRoute
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/inventory'
     | '/login'
+    | '/orders'
     | '/pos'
     | '/pricing'
     | '/profile'
@@ -320,6 +330,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/inventory'
     | '/login'
+    | '/orders'
     | '/pos'
     | '/pricing'
     | '/profile'
@@ -351,6 +362,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/inventory'
     | '/login'
+    | '/orders'
     | '/pos'
     | '/pricing'
     | '/profile'
@@ -383,6 +395,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   InventoryRoute: typeof InventoryRoute
   LoginRoute: typeof LoginRoute
+  OrdersRoute: typeof OrdersRoute
   PosRoute: typeof PosRoute
   PricingRoute: typeof PricingRoute
   ProfileRoute: typeof ProfileRoute
@@ -436,6 +449,13 @@ declare module '@tanstack/react-router' {
       path: '/pos'
       fullPath: '/pos'
       preLoaderRoute: typeof PosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -643,6 +663,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   InventoryRoute: InventoryRoute,
   LoginRoute: LoginRoute,
+  OrdersRoute: OrdersRoute,
   PosRoute: PosRoute,
   PricingRoute: PricingRoute,
   ProfileRoute: ProfileRoute,
