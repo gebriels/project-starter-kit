@@ -14,6 +14,7 @@ import {
   CreditCard,
   Landmark,
   Receipt,
+  ClipboardList,
 } from "lucide-react";
 import { AppShellWithSlot } from "@/components/app-shell";
 import { RequireRole } from "@/components/require-role";
@@ -22,6 +23,8 @@ import { useOnline } from "@/hooks/use-online";
 import { useCatalog, type Medication, type Batch } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import * as salesService from "@/services/pos/salesService";
+import { ordersRepo } from "@/db/orders";
+import { useOrdersEnabled } from "@/hooks/use-orders";
 
 
 
@@ -116,6 +119,7 @@ function PosView() {
   const subtotal = lines.reduce((s, x) => s + x.med.price * x.line.qty, 0);
   const total = subtotal;
   const itemCount = lines.reduce((s, x) => s + x.line.qty, 0);
+  const ordersEnabled = useOrdersEnabled(pharmacyId);
   const [charging, setCharging] = useState(false);
   const [receipt, setReceipt] = useState<string | null>(null);
   const [queuedOffline, setQueuedOffline] = useState(false);
@@ -128,6 +132,26 @@ function PosView() {
     }
     setCharging(true);
     try {
+      if (ordersEnabled) {
+        const order = await ordersRepo.create(
+          pharmacyId,
+          lines.map((x) => ({
+            product_id: x.med.id,
+            batch_id: x.batch.id,
+            name: x.med.name,
+            strength: x.med.strength,
+            form: x.med.form,
+            quantity: x.line.qty,
+            unit_price: x.med.price,
+          })),
+        );
+        setCart([]);
+        setMobileCartOpen(false);
+        setQueuedOffline(false);
+        setReceipt(`Order #${order.order_no} sent to Orders`);
+        setTimeout(() => setReceipt(null), 2500);
+        return;
+      }
       const result = await salesService.checkout(
         pharmacyId,
         lines.map((x) => ({
@@ -308,7 +332,7 @@ function PosView() {
             total={total}
 
             onCharge={handleCharge}
-
+            orderMode={ordersEnabled}
             itemCount={itemCount}
             setQty={setQty}
             setBatch={setBatch}
@@ -345,7 +369,7 @@ function PosView() {
                 subtotal={subtotal}
                 total={total}
                 onCharge={handleCharge}
-
+                orderMode={ordersEnabled}
                 itemCount={itemCount}
                 setQty={setQty}
                 setBatch={setBatch}
@@ -411,6 +435,7 @@ function CartPanel({
   setBatch,
   removeLine,
   onCharge,
+  orderMode,
   embedded,
 }: {
   lines: { line: CartLine; med: Medication; batch: Batch }[];
@@ -421,6 +446,7 @@ function CartPanel({
   setBatch: (medId: string, batchId: string) => void;
   removeLine: (medId: string) => void;
   onCharge: () => void;
+  orderMode?: boolean;
   embedded?: boolean;
 }) {
 
@@ -497,8 +523,8 @@ function CartPanel({
           disabled={lines.length === 0}
           className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <CreditCard className="h-4 w-4" />
-          Charge ${total.toFixed(2)}
+          {orderMode ? <ClipboardList className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+          {orderMode ? "Order" : "Charge"} ${total.toFixed(2)}
         </button>
 
         <button
