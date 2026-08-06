@@ -26,7 +26,7 @@ export const Route = createFileRoute("/supplier/inventory")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: SupplierInventory;
+  component: SupplierInventory,
 });
 
 type Editing =
