@@ -8,6 +8,10 @@ import {
   Pill,
   User,
   ClipboardList,
+  Receipt,
+  Truck,
+  Store,
+
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -18,7 +22,16 @@ import type { Role } from "@/db/session";
 
 
 type NavItem = {
-  to: "/dashboard" | "/pos" | "/orders" | "/inventory" | "/reports" | "/profile";
+  to:
+    | "/dashboard"
+    | "/pos"
+    | "/orders"
+    | "/sales"
+    | "/purchase-orders"
+    | "/marketplace"
+    | "/inventory"
+    | "/reports"
+    | "/profile";
   label: string;
   icon: typeof LayoutDashboard;
   match: string[];
@@ -30,6 +43,21 @@ const navItems: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, match: ["/dashboard"] },
   { to: "/pos", label: "POS", icon: ScanLine, match: ["/pos"] },
   { to: "/orders", label: "Orders", icon: ClipboardList, match: ["/orders"] },
+  { to: "/sales", label: "Sales", icon: Receipt, match: ["/sales"] },
+  {
+    to: "/purchase-orders",
+    label: "Purchases",
+    icon: Truck,
+    match: ["/purchase-orders"],
+    roles: ["owner", "pharmacist"],
+  },
+  {
+    to: "/marketplace",
+    label: "Market",
+    icon: Store,
+    match: ["/marketplace"],
+    roles: ["owner", "pharmacist"],
+  },
   {
     to: "/inventory",
     label: "Inventory",
@@ -46,6 +74,7 @@ const navItems: NavItem[] = [
   },
   { to: "/profile", label: "Profile", icon: User, match: ["/profile"] },
 ];
+
 
 export function AppShell({
   children,

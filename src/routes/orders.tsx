@@ -200,7 +200,7 @@ function OrderCard({
               </div>
             </div>
             <div className="font-mono-data text-xs font-semibold">
-              ${(i.unit_price * i.quantity).toFixed(2)}
+              {(i.unit_price * i.quantity).toFixed(2)} ETB
             </div>
           </li>
         ))}
@@ -215,7 +215,7 @@ function OrderCard({
         <span className="font-mono-data text-[10px] font-bold uppercase tracking-wider text-warning">
           Total Due
         </span>
-        <span className="font-mono-data text-xl font-bold">${order.total.toFixed(2)}</span>
+        <span className="font-mono-data text-xl font-bold">{order.total.toFixed(2)} ETB</span>
       </div>
 
       {pending && (

@@ -34,6 +34,7 @@ import {
   settingsRepo,
 } from "@/db/pharmacy-config";
 import { submitPayout } from "@/services/admin/payoutService";
+import { recordPaymentSuccess } from "@/lib/billing";
 import { listStaff, setStaffActive } from "@/services/admin/staffService";
 import type { UserRow } from "@/db/dexie";
 import { orderSettingsRepo } from "@/db/orders";
@@ -469,9 +470,9 @@ function RuleSlider({
 type PayMethod = "cash" | "cbe" | "telebirr";
 
 const TIER_AMOUNTS: Record<string, number> = {
-  basic: 49,
-  pro: 99,
-  enterprise: 129,
+  basic: 2500,
+  pro: 4500,
+  enterprise: 6500,
 };
 
 function PaymentSheet({
@@ -546,6 +547,9 @@ function PaymentSheet({
         payment_method: methodLabel,
         transaction_reference: reference,
       });
+      // Payment accepted: roll the due date forward, reactivate the
+      // subscription in Supabase and unlock the app locally.
+      await recordPaymentSuccess(pharmacyId);
       setConfirmed(true);
       setTimeout(onClose, 900);
     } catch (err) {
@@ -597,7 +601,7 @@ function PaymentSheet({
           <div className="mt-3 flex items-center justify-between border-b border-border px-1 py-4">
             <span className="text-sm text-muted-foreground">Total Amount Due</span>
             <span className="font-mono-data text-2xl font-bold tracking-tight text-foreground">
-              {amount.toFixed(0)} ETB
+              {amount.toLocaleString()} ETB
             </span>
           </div>
         </div>

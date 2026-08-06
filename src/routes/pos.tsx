@@ -271,7 +271,7 @@ function PosView() {
                         </span>
                       </td>
                       <td className="px-3 py-3 text-right font-mono-data font-semibold text-primary">
-                        ${m.price.toFixed(2)}
+                        {m.price.toFixed(2)} ETB
                       </td>
                       <td className="px-3 py-3 text-right">
                         <button
@@ -310,7 +310,7 @@ function PosView() {
                 </div>
                 <div className="text-right">
                   <div className="font-mono-data text-base font-bold text-primary">
-                    ${m.price.toFixed(2)}
+                    {m.price.toFixed(2)} ETB
                   </div>
                   <div className="font-mono-data text-[11px] text-subtle-foreground">
                     Qty {m.stock}
@@ -511,11 +511,11 @@ function CartPanel({
 
       <footer className="border-t border-border bg-surface-low px-5 py-4">
         <dl className="space-y-1.5 text-sm">
-          <Row label="Subtotal" value={`$${subtotal.toFixed(2)}`} />
+          <Row label="Subtotal" value={`${subtotal.toFixed(2)} ETB`} />
           <div className="flex items-baseline justify-between border-t border-border pt-2.5">
             <dt className="text-base font-bold">Total</dt>
             <dd className="font-mono-data text-xl font-bold text-primary">
-              ${total.toFixed(2)}
+              {total.toFixed(2)} ETB
             </dd>
           </div>
         </dl>
@@ -526,7 +526,7 @@ function CartPanel({
           className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {orderMode ? <ClipboardList className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
-          {orderMode ? "Order" : "Charge"} ${total.toFixed(2)}
+          {orderMode ? "Order" : "Charge"} {total.toFixed(2)} ETB
         </button>
 
         <button
@@ -581,7 +581,7 @@ function CartRow({
         </div>
         <div className="text-right">
           <div className="font-mono-data text-sm font-bold text-primary">
-            ${lineTotal.toFixed(2)}
+            {lineTotal.toFixed(2)} ETB
           </div>
         </div>
       </div>
